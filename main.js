@@ -65,10 +65,19 @@
             }
             pos++
         }
-        if (c == 0 && parseInt(tabEquation[pos + 1]) != 0)
+        if ((a == 0 || b == 0 || c == 0) && parseInt(tabEquation[pos + 1]) != 0)
         {
-            c = parseInt(tabEquation[pos + 1]) * -1
+            if (a == 0) 
+                a = parseInt(tabEquation[pos + 1]) * -1
+            else if (b == 0)
+                b = parseInt(tabEquation[pos + 1]) * -1
+            else if (c == 0)
+                c = parseInt(tabEquation[pos + 1]) * -1
         }
+        else {
+            
+        }
+
         casEquationABC(a, b, c);
     }
 
