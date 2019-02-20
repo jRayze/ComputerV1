@@ -3,152 +3,70 @@
         console.log(sequence)
         stringoutofspace = sequence.replace(/\s/g,'')
         console.log(stringoutofspace);
-        return stringoutofspace.split("")
+        return stringoutofspace.split("=")
     }
 
+	function mergeRightToLeft(tabChar) {
+		//fonction qui addition les valeurs x apres le égal avec celle avant le egal --- penser a inverser la valeur "1x = -1x"
+		var tabGauche = new Array()
+		var tabDroite = new Array()
+		var tabResult = new Array()
+		
+		tabGauche = splitBySymbol(tabChar[0])
+		tabDroite = splitBySymbol(tabChar[1])
+	
+	}
+	
+	function splitBySymbol(tabChar) {
+		//verifier si on split par - et + si ca fonctionne (idee = si - et precede d'un plus on annule le + et on ajoute le moin a la valeur qui suit)
+		var cpyTabChar = tabChar.replace(/-/gi, "+-");
+		//console.log(cpyTabChar);
+		var tabSplitSymbol = cpyTabChar.split("+")
+		if (tabSplitSymbol[0] == ""){
+			tabSplitSymbol.splice(0,1);
+		}
+		console.log(tabSplitSymbol);
+		/*switch(tabSplitSymbol) {
+			case :
+			break;
+			case :
+			break;
+			case :
+			break;
+			case :
+			break;
+			
+		}*/
+		return tabSplitSymbol;
+	}
+	
     function indexation(tabChar) {
-        var cpt = 0;
-        var tabEquation = new Array();
-        while (tabChar[cpt]) {
-            var str = new Array()
-            while(tabChar[cpt] != '*' && tabChar[cpt] != '^' && tabChar[cpt] != '-' && tabChar[cpt] != '+' && tabChar[cpt] != '\'' && tabChar[cpt] != '=' && tabChar[cpt]) {
-                str = str + tabChar[cpt]
-                cpt++
-            }
-            //console.log('tutu2')
-            tabEquation.push(str)
-            tabEquation.push(tabChar[cpt])
-            cpt++;
-        }
-        for (var i in tabEquation) {
-            console.log(tabEquation[i] + " ")
-        }
-        determineCas(tabEquation)
+		mergeRightToLeft(tabChar)
+		/*getABC(tabChar)
+		solution(a, b, c)*/
     }
     
-    function determineCas(tabEquation) {
-        var pos = 0
-        var a = 0;
-        var b = 0;
-        var c = 0;
-        while (tabEquation[pos] != "=") {
-            if (tabEquation[pos] == 'x') {
-                if (tabEquation[pos + 1] == '^') {
-                    pos += 2
-                }
-                else
-                    pos++
-                if (a == 0) 
-                    a = 1
-                else if (b == 0)
-                    b = 1
-                else if (c == 0)
-                    c = 1
-            }
-            else if (parseInt(tabEquation[pos])) {
-                if (a == 0) {
-                   a = parseInt(tabEquation[pos])
-                }
-                else if (b == 0) { 
-                    b = parseInt(tabEquation[pos])
-                } 
-                else if (c == 0) {
-                  c = parseInt(tabEquation[pos])
-                }
-                if (tabEquation[pos + 1] && tabEquation[pos + 1] == "x")
-                {
-                    while (tabEquation[pos] != "+" && tabEquation[pos] != "-" && tabEquation[pos] != "/" && tabEquation[pos] != "*" && tabEquation[pos] != "="){
-                        pos++;
-                    }
-                }
-                
-            }
-            pos++
-        }
-        if ((a == 0 || b == 0 || c == 0) && parseInt(tabEquation[pos + 1]) != 0)
-        {
-            if (a == 0) 
-                a = parseInt(tabEquation[pos + 1]) * -1
-            else if (b == 0)
-                b = parseInt(tabEquation[pos + 1]) * -1
-            else if (c == 0)
-                c = parseInt(tabEquation[pos + 1]) * -1
-        }
-        else {
-            
-        }
-
-        casEquationABC(a, b, c);
+    function getABC(tabEquation) {
+		var a = 0; //x^2
+		var b = 0; //x
+		var c = 0; //nb
+		//recupere et addition les valeurs des differents x (x^2 ; x ; nb)
     }
 
-    function casEquationABC(a, b, c) {
-        console.log("a = " + a);
-        console.log("b = " + b);
-        console.log("c = " + c);
+	//5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0
+	
+    function solution(a, b, c) {
+        console.log("a = " + a)
+        console.log("b = " + b)
+        console.log("c = " + c)
+		var delta = calculDelta(a,b,c)
+		console.log("Discriminant is strictly positive, the two solutions are:")
+        console.log("a = "+a+" b = "+b+" delta = "+delta)
+        console.log("The solution 1 : " + calculSolution1(a,b,delta))
+        console.log("The solution 2 : " + calculSolution2(a,b,delta))
     }
-
-    function execCalculator() {
-        var tabChar = parseCalculator()
-        /*tabChar.forEach(Element => {
-            console.log(Element + ' // ')
-        });*/
-        indexation(tabChar)
-
-
-
-    }
-    /*
-  function parseCalculator() {
-        var sequence = document.getElementById('func').value
-        console.log(sequence)
-        stringoutofspace = sequence.replace(/\s/g,'')
-        console.log(stringoutofspace);
-        return stringoutofspace.split("");
-    }
-
-    function indexation(tabChar) {
-        var cpt;
-        var symb = new Array( '=', 'X',  '/' , '*', '+', '-', '^')
-        var number = new Array ('0','1', '2', '3', '4', '5', '6', '7', '8', '9')
-        tabChar.forEach(elem => {
-          if (symb.indexOf(elem) == -1 && number.indexOf(elem) == -1 ) {
-            console.log("Error :"+elem+" in equation, set valid equation !")
-          }
-        });
-        console.log('tutu');
-        while (tabChar[cpt]) {
-            var str = new Array()
-            var number = 0;
-            while(symb.indexOf(elem) == -1 && tabChar[cpt]) {
-                str = str + tabChar[cpt]
-                cpt++;
-            }
-            if (tabChar[cpt] && sym.indexOf(tabChar[cpt])) {
-              switch (tabChar[cpt]) {
-                  case "X":
-                    break;
-                  case "=":
-                    break;
-                  case "/":
-                    break;
-                  case "*":
-                    break;
-                  case "+":
-                    break;
-                  case "-":
-                    break;
-                  case "^":
-                    break;
-                default:
-
-              }
-            }
-            number = parseInt(str)
-            console.log(number);
-            cpt++;
-        }
-    }
-    function calculDelta(a, b, c) {
+	
+	function calculDelta(a, b, c) {
       var res = (b * b) - ((4 * a) * c)
       return res;
     }
@@ -162,6 +80,7 @@
       var res = ((b * - 1) - racineDelta) / (2 * a)
       return res
     }
+	
     function calculSolution2(a, b, delta) {
       var racineDelta = racineCarre(delta)
       if (racineDelta == 0)
@@ -189,20 +108,10 @@
       return 0
     }
 
-    function execCalculator() {
+   function execCalculator() {
         var tabChar = parseCalculator()
         tabChar.forEach(Element => {
             console.log(Element + ' // ')
         });
-        var a = 1
-        var b = 1
-        var c = -2
-        var delta = calculDelta(a,b,c)
-        console.log("a = "+a+" b = "+b+" delta = "+delta)
-        console.log("solution 1 : " + calculSolution1(a,b,delta))
-        console.log("solution 2 : " + calculSolution2(a,b,delta))
-
         indexation(tabChar)
-
-
-    }*/
+    }
