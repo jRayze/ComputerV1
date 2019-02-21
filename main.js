@@ -2,6 +2,8 @@
         var sequence = document.getElementById('func').value
         console.log(sequence)
         sequence = sequence.replace('/*/g','')
+		sequence = sequence.replace('/x/\^0/gi','')
+		sequence = sequence.replace('/x/\^1/gi','x')
         stringoutofspace = sequence.replace(/\s/g,'')
         console.log(stringoutofspace);
         return stringoutofspace.split("=")
@@ -25,43 +27,39 @@
             var posx = tabDroite[i].search(/x/gi)
             var posnum = tabDroite[i].search(/\d/gi)
             if(posxcarre != -1) {
-                if (tabDroite[posxcarre - 1]) {
-                    var value = parseInt(tabDroite[posxcarre - 1])
+				if (tabDroite[i][posxcarre - 1]) {
+                    var value = parseFloat(tabDroite[i][posxcarre - 1])
                     if (!isNaN(value)) {
+						console.log(value)
                         a -= value  
                     }
                     else
-                        a -= 1;
+                        a -= 1.00;
                 }
                 else
-                    a -= 1;
+                    a -= 1.00;
             }
-            if (posx != -1) {
-                if (tabDroite[posx -1]) {
-                    var value = parseInt(tabDroite[posx -1])
+            else if (posx != -1) {
+                if (tabDroite[i][posx -1]) {
+                    var value = parseFloat(tabDroite[i][posx -1])
                     if (!isNaN(value)) {
                         b -= value
                     }
                     else
-                        b -= 1;
+                        b -= 1.00;
                 }
                 else
-                    b -= 1;
+                    b -= 1.00;
             }
-            if (posnum != -1) {
-                if ((tabDroite[posnum - 1] && tabDroite[posnum -1] == '^') 
-                    || (tabDroite[posnum + 1] && tabDroite[posnum + 1] == 'x')) {
-                        c -= 0;
-                }
-                else {
-                    if (tabDroite[posnum] != '0' && !isNaN(parseInt(tabDroite[posnum]))) {
-                        c -= parseInt(tabDroite[posnum]);
-                        console.log("c droite = "+c);
-                        console.log("--")
-                    }
-                }
-                    
+            else if (posnum != -1) {
+                if (!((tabDroite[i][posnum - 1] && tabDroite[i][posnum -1] == '^') 
+                    || (tabDroite[i][posnum + 1] && tabDroite[i][posnum + 1] == 'x'))) {
+                        if (tabDroite[i][posnum] != '0' && !isNaN(parseFloat(tabDroite[i][posnum]))) {
+                            c += parseFloat(tabDroite[i][posnum]);
+                        }
+                }   
             }
+			console.log("turn d = "+i+" and a = "+a+" b = "+b+" c = "+c);
             //console.log("match x^2 a la position "+posxcarre);
         }
         for (var i = 0; tabGauche[i]; i++) {
@@ -69,38 +67,42 @@
             var posx = tabGauche[i].search(/x/gi)
             var posnum = tabGauche[i].search(/[0-9]/gi)
             if(posxcarre != -1) {
-                if (tabGauche[posxcarre - 1]) {
-                    var value = parseInt(tabGauche[posxcarre - 1])
+                if (tabGauche[i][posxcarre - 1]) {
+                    var value = parseFloat(tabGauche[i][posxcarre - 1])
                     if (!isNaN(value)) {
+						console.log(value)
                         a += value  
                     }
                     else
-                        a += 1;
+                        a += 1.00;
                 }
                 else
-                    a += 1;
+                    a += 1.00;
             }
-            if (posx != -1) {
-                if (tabGauche[posx -1]) {
-                    var value = parseInt(tabGauche[posx -1])
+            else if (posx != -1) {
+                if (tabGauche[i][posx -1]) {
+                    var value = parseFloat(tabGauche[i][posx -1])
                     if (!isNaN(value)) {
-                        b += value
+						console.log(value);
+						console.log("at this statement b equal "+parseFloat(b));
+                        b = b + value
+						console.log("at this statement b equal "+b);
                     }
                     else
-                        b += 1;
+                        b =  b + 1.00;
                 }
                 else
-                    b += 1;
+                    b = b  + 1.00;
             }
-            if (posnum != -1) {
-                if (!((tabGauche[posnum - 1] && tabGauche[posnum -1] == '^') 
-                    || (tabGauche[posnum + 1] && tabGauche[posnum + 1] == 'x'))) {
-                        if (tabGauche[posnum] != '0' && !isNaN(parseInt(tabGauche[posnum]))) {
-                            c += parseInt(tabGauche[posnum]);
-                            console.log("c gauche = "+c);
+            else if (posnum != -1) {
+                if (!((tabGauche[i][posnum - 1] && tabGauche[i][posnum -1] == '^') 
+                    || (tabGauche[i][posnum + 1] && tabGauche[i][posnum + 1] == 'x'))) {
+                        if (tabGauche[i][posnum] != '0' && !isNaN(parseFloat(tabGauche[i][posnum]))) {
+                            c += parseFloat(tabGauche[i][posnum]);
                         }
                 }
             }
+			console.log("turn g = "+i+" and a = "+a+" b = "+b+" c = "+c);
         }
         solution(a, b, c)
 	}
@@ -201,8 +203,12 @@
             console.log(Element + ' // ')
         });
         indexation(tabChar)
+		var a = -2.00
+		var b = 3
+		var c = a + b
+		console.log(c)
     }
 
-    function parseInt(x) {
+   /* function parseFloat(x) {
         return Number.parseFloat(x).toFixed(10)
-    }
+    }*/
