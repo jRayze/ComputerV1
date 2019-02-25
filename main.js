@@ -1,16 +1,21 @@
     function parseCalculator(text) {
-        var sequence = text
+        var stringoutofspace = text.replace(/\s/g,'')
+        sequence = stringoutofspace;
+        sequence = sequence.replace(/\*/g,'')
+		sequence = sequence.replace(/x\^0/gi,'')
+        sequence = sequence.replace(/x\^1/gi,'x')
         console.log(sequence)
-        sequence = sequence.replace('/*/g','')
-		sequence = sequence.replace('/x/\^0/gi','')
-		sequence = sequence.replace('/x/\^1/gi','x')
-        stringoutofspace = sequence.replace(/\s/g,'')
-        console.log(stringoutofspace);
-        return stringoutofspace.split("=")
+        return sequence.split("=")
     }
-
+// il faut gerer le cas x * 5 c'est egal a 5x - il faut gere les equations du premier degré, on cherche si il y a des x^2 si il y en a pas c'est une equation du premier degré - il faut afficher les etapes intermediaires - 
+/*
+** a = 5 - 1 = 4 
+** b = 4
+** c = -9,3
+** delta = 
+*/
 	function mergeRightToLeft(tabChar) {
-		//fonction qui addition les valeurs x apres le égal avec celle avant le egal --- penser a inverser la valeur "1x = -1x"
+		//fonction qui additionne les valeurs x apres le égal avec celle avant le egal --- penser a inverser la valeur "1x = -1x"
 		var tabGauche = new Array()
 		var tabDroite = new Array()
 		var tabResult = new Array()
@@ -23,9 +28,15 @@
 		tabDroite = splitBySymbol(tabChar[1])
         console.log(tabDroite)
         for (var i = 0; tabDroite[i]; i++) {
+            var index = tabDroite[i].search(/x\d/)
+            if (index != -1) {
+                tabDroite[i] = tabDroite[i].substr(1) + 'x'
+            }  
+            console.log("tabDroite[i] = "+tabDroite[i])
             var posxcarre = tabDroite[i].search(/x\^2/gi)
             var posx = tabDroite[i].search(/x/gi)
             var posnum = tabDroite[i].search(/\d/gi)
+            var posx
             if(posxcarre != -1) {
 				if (tabDroite[i][posxcarre - 1]) {
                     var tdv = tabGauche[i].substr(0, posxcarre)
@@ -55,7 +66,7 @@
                 else
                     b -= 1.00;
             }
-            else if (posnum != -1) {
+            else if (posnum != -1 || posxpzero != -1) {
                 if (!((tabDroite[i][posnum - 1] && tabDroite[i][posnum -1] == '^') 
                     || (tabDroite[i][posnum + 1] && tabDroite[i][posnum + 1] == 'x'))) {
                         if (tabDroite[i][posnum] != '0' && !isNaN(parseFloat(tabDroite[i][posnum]))) {
@@ -67,6 +78,11 @@
             //console.log("match x^2 a la position "+posxcarre);
         }
         for (var i = 0; tabGauche[i]; i++) {
+            var index = tabGauche[i].search(/x\d/)
+            if (index != -1) {
+                tabGauche[i] = tabGauche[i].substr(1) + 'x'
+            }  
+            console.log("tabGauche[i] = "+tabGauche[i])
             var posxcarre = tabGauche[i].search(/x\^2/gi)
             var posx = tabGauche[i].search(/x/gi)
             var posnum = tabGauche[i].search(/[0-9]/gi)
@@ -115,59 +131,45 @@
 	}
 	
 	function splitBySymbol(tabChar) {
-		//verifier si on split par - et + si ca fonctionne (idee = si - et precede d'un plus on annule le + et on ajoute le moin a la valeur qui suit)
+		//verifier si on split par - et + si ca fonctionne (idee = si - et precede d'un plus on annule le + et on ajoute le moins a la valeur qui suit)
 		var cpyTabChar = tabChar.replace(/-/gi, "+-");
-		//console.log(cpyTabChar);
 		var tabSplitSymbol = cpyTabChar.split("+")
 		if (tabSplitSymbol[0] == ""){
 			tabSplitSymbol.splice(0,1);
 		}
-        //console.log(tabSplitSymbol);
-        //mergeRightToLeft(tabSplitSymbol);
-		/*switch(tabSplitSymbol) {
-			case :
-			break;
-			case :
-			break;
-			case :
-			break;
-			case :
-			break;
-			
-		}*/
 		return tabSplitSymbol;
 	}
 	
     function indexation(tabChar) {
 		mergeRightToLeft(tabChar)
-		/*getABC(tabChar)
-        solution(a, b, c)*/
-        //solution(1, 2, 0);
-    }
-    
-    function getABC(tabEquation) {
-		var a = 0; //x^2
-		var b = 0; //x
-		var c = 0; //nb
-		//recupere et addition les valeurs des differents x (x^2 ; x ; nb)
     }
 
 	//5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0
-	
+    //a = 0 b = 5 c = 0
+    //25 + 0
+    //d = 25 
+    // -5 - 5 / 0 = -10 /0 = 0 
+    // -5 + 5 / 0 = 0 / 0 = 0
+
+    
     function solution(a, b, c) {
         console.log("a = " + parseFloat(a))
         console.log("b = " + parseFloat(b))
         console.log("c = " + parseFloat(c))
         var delta = calculDelta(a,b,c)
-        /*document.getElementById("result").innerHTML= "<div>Discriminant is strictly positive, the two solutions are:</div><div>"+ "a = "+a.toFixed(4)+"</div><div> b = "+b.toFixed(4)+"</div><div> delta = "+delta.toFixed(4)+"</div><div>The solution 1 : " + calculSolution1(a,b,delta).toFixed(4)+"</div><div>The solution 2 : "+calculSolution2(a,b,delta).toFixed(4)+"<div>";
-		console.log("Discriminant is strictly positive, the two solutions are:")
-        console.log("a = "+a+" b = "+b+" delta = "+delta)
-        console.log("The solution 1 : " + calculSolution1(a,b,delta))
-        console.log("The solution 2 : " + calculSolution2(a,b,delta))*/
-        var reponse = "Discriminant is strictly positive, the two solutions are:<br>"
-        reponse = reponse + "a = "+a+" b = "+b+" delta = "+delta+"<br>"
-        reponse = reponse + "The solution 1 : " + calculSolution1(a,b,delta)+"<br>"
-        reponse = reponse + "The solution 2 : " + calculSolution2(a,b,delta)+"<br>"
+        if (delta == 0) {
+            var reponse = "Discriminant equal 0, one solution:<br>"
+            reponse = reponse + "The solution : " + calculSolution0(a, b).toFixed(6)+"<br>"
+        }
+        else if (delta > 0) {
+            var reponse = "Discriminant is strictly positive, the two solutions are:<br>"
+           // reponse = reponse + "a = "+a+" b = "+b+" delta = "+delta+"<br>"
+            reponse = reponse + "The solution 1 : " + calculSolution1(a,b,delta).toFixed(6)+"<br>"
+            reponse = reponse + "The solution 2 : " + calculSolution2(a,b,delta).toFixed(6)+"<br>"
+        }
+        else {
+            var reponse = "Discriminant is negative, no solution."
+        }
         $('.message_input').val(reponse)
         $('.send_message').click()
         
@@ -184,18 +186,24 @@
     function calculSolution1(a, b, delta) {
         var racineDelta = racineCarre(delta, 1.0, 0.0, 0.0)
         console.log("racine delta = "+racineDelta);
-        if (racineDelta == 0)
-        return 0
+        if (racineDelta == 0) {
+            return 0
+        }
         var res = ((b * - 1) - racineDelta) / (2 * a)
+        console.log ("b * -1 = "+(b * -1)+" racineDelta = "+racineDelta+" 2 * a = "+(2 * a))
+        console.log(res)
         return res
     }
 	
     function calculSolution2(a, b, delta) {
-      var racineDelta = racineCarre(delta, 1.0, 0.0, 0.0)
-      if (racineDelta == 0)
-        return 0
-      var res = ((b * - 1) + racineDelta) / (2 * a)
-      return res
+        var racineDelta = racineCarre(delta, 1.0, 0.0, 0.0)
+        if (racineDelta == 0) {
+            return 0
+        }
+        var res = ((b * - 1) + racineDelta) / (2 * a)
+        console.log ("b * -1 = "+(b * -1)+" racineDelta = "+racineDelta+" 2 * a = "+(2 * a))
+        console.log(res)
+        return res
     }
     function racineCarre(val, add, start, end) {
         var i = parseFloat(0.0 + start)
@@ -210,8 +218,8 @@
                 return i;
             }
             else if ((i * i) < val && ((i + add) * (i + add)) > val) {
-                if (end == 5) {
-                    if (i >= (add * 5)) {
+                if (end == 7) {
+                    if (i > (add * 5)) {
                         return start + (add * 10)
                     }
                     else
@@ -230,11 +238,6 @@
             console.log(Element + ' // ')
         });
         indexation(tabChar)
-		/*var a = -2.00
-		var b = 3.01
-		var c = a + b
-        console.log(c.toFixed(2))*/
-       // console.log(racineCarre(13, 1.0, 0.0, 0.0))
     }
 
     (function () {
