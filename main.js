@@ -1,11 +1,10 @@
     function parseCalculator(text) {
-        var stringoutofspace = text.replace(/\s/g,'')
-        sequence = stringoutofspace;
-        sequence = sequence.replace(/\*/g,'')
-		sequence = sequence.replace(/x\^0/gi,'')
-        sequence = sequence.replace(/x\^1/gi,'x')
-        console.log(sequence)
-        return sequence.split("=")
+        var stringparce = text.replace(/x\^0\s/gi,'')
+		stringparce = stringparce.replace(/x\^1\s/gi,'x')
+        stringparce = stringparce.replace(/\*/g,'')
+		stringparce = stringparce.replace(/\s/g,'')
+        console.log(stringparce)
+        return stringparce.split("=")
     }
 // il faut gerer le cas x * 5 c'est egal a 5x - il faut gere les equations du premier degré, on cherche si il y a des x^2 si il y en a pas c'est une equation du premier degré - il faut afficher les etapes intermediaires - 
 /*
@@ -14,6 +13,19 @@
 ** c = -9,3
 ** delta = 
 */
+	function checkIfPuiExist(tableau, puissance) {
+		var index = 0
+		for (var i in tableau) {
+			let line = tableau[i]
+			if (line.puissance == puissance) {
+				console.log("lol"+puissance)
+				return index
+			}
+			index++
+		}
+		return -1
+	} 
+
 	function mergeRightToLeft(tabChar) {
 		//fonction qui additionne les valeurs x apres le égal avec celle avant le egal --- penser a inverser la valeur "1x = -1x"
 		var tabGauche = new Array()
@@ -22,6 +34,7 @@
         var a = 0.00
         var b = 0.00
         var c = 0.00
+		var tabPui = [];
 
         tabGauche = splitBySymbol(tabChar[0])
         console.log(tabGauche);
@@ -33,49 +46,73 @@
                 tabDroite[i] = tabDroite[i].substr(1) + 'x'
             }  
             console.log("tabDroite[i] = "+tabDroite[i])
-            var posxcarre = tabDroite[i].search(/x\^2/gi)
+            //var posxcarre = tabDroite[i].search(/x\^2/gi)
             var posx = tabDroite[i].search(/x/gi)
             var posnum = tabDroite[i].search(/\d/gi)
-            var posx
-            if(posxcarre != -1) {
-				if (tabDroite[i][posxcarre - 1]) {
-                    var tdv = tabGauche[i].substr(0, posxcarre)
+            var posxpui = tabDroite[i].search(/x\^[0-9]/gi)
+			if (posxpui != -1) {
+				var pui = parseFloat(tabDroite[i].substr(posxpui + 2))
+				var index = checkIfPuiExist(tabPui, pui)
+				if (tabDroite[i][posxpui -1]) {
+					var tdv = tabDroite[i].substr(0, posxpui);
+					var value = parseFloat(tdv)
+					if (!isNaN(value)) {
+						console.log(value)
+						if (index == -1) {
+							tabPui.push({puissance: pui, valeur : value})
+						}
+						else {
+							tabPui[index].valeur -= value
+						}
+						console.log("tabpui = "+tabPui);
+					}
+				}
+				else {
+					if (index == -1) {
+						tabPui.push({puissance: pui, valeur : -1.00})
+					}
+					else {
+						tabPui[index].valeur -= 1.00
+					}
+					//console.log("tabpui = "+tabPui);
+				}
+				console.log('pui = '+pui)
+			}
+            else if (posx != -1) {
+				var index = checkIfPuiExist(tabPui, 1)
+                if (tabDroite[i][posx -1]) {
+                    var tdv = tabDroite[i].substr(0)
                     var value = parseFloat(tdv)
                     if (!isNaN(value)) {
 						console.log(value)
-                        a -= value  
-                    }
-                    else
-                        a -= 1.00;
+						if (index == -1) {
+							tabPui.push({puissance: 1, valeur : value})
+						}
+						else {
+							tabPui[index].valeur -= value
+						}
+						console.log("tabpui = "+tabPui);
+					}
                 }
-                else
-                    a -= 1.00;
+                else {
+					if (index == -1) {
+						tabPui.push({puissance: 1, valeur : -1.00})
+					}
+					else {
+						tabPui[index].valeur -= 1.00
+					}
+				}
             }
-            else if (posx != -1) {
-                if (tabDroite[i][posx -1]) {
-                    console.log("tdv="+tabDroite[i])
-                    var tdv = tabDroite[i].substr(0)
-                    console.log("tdv="+tdv)
-                    var value = parseFloat(tdv)
-                    if (!isNaN(value)) {
-                        b -= value
-                    }
-                    else
-                        b -= 1.00;
-                }
-                else
-                    b -= 1.00;
+            else if (posnum != -1) {
+                var index = checkIfPuiExist(tabPui, 0)
+				var value = parseFloat(tabDroite[i]);
+				if (index == -1) {
+					tabPui.push({puissance: 0, valeur : value})
+				}
+				else {
+					tabPui[index].valeur -= value
+				}
             }
-            else if (posnum != -1 || posxpzero != -1) {
-                if (!((tabDroite[i][posnum - 1] && tabDroite[i][posnum -1] == '^') 
-                    || (tabDroite[i][posnum + 1] && tabDroite[i][posnum + 1] == 'x'))) {
-                        if (tabDroite[i][posnum] != '0' && !isNaN(parseFloat(tabDroite[i][posnum]))) {
-                            c -= parseFloat(tabDroite[i]);
-                        }
-                }   
-            }
-			console.log("turn d = "+i+" and a = "+a+" b = "+b+" c = "+c);
-            //console.log("match x^2 a la position "+posxcarre);
         }
         for (var i = 0; tabGauche[i]; i++) {
             var index = tabGauche[i].search(/x\d/)
@@ -83,51 +120,129 @@
                 tabGauche[i] = tabGauche[i].substr(1) + 'x'
             }  
             console.log("tabGauche[i] = "+tabGauche[i])
-            var posxcarre = tabGauche[i].search(/x\^2/gi)
+            //var posxcarre = tabGauche[i].search(/x\^2/gi)
             var posx = tabGauche[i].search(/x/gi)
-            var posnum = tabGauche[i].search(/[0-9]/gi)
-            if(posxcarre != -1) {
-                if (tabGauche[i][posxcarre - 1]) {
-                    var tgv = tabGauche[i].substr(0,posxcarre)
-                    var value = parseFloat(tgv)
+            var posnum = tabGauche[i].search(/\d/gi)
+            var posxpui = tabGauche[i].search(/x\^[0-9]/gi)
+			if (posxpui != -1) {
+				var pui = parseFloat(tabGauche[i].substr(posxpui + 2))
+				var index = checkIfPuiExist(tabPui, pui)
+				if (tabGauche[i][posxpui -1]) {
+					var tdv = tabGauche[i].substr(0, posxpui);
+					var value = parseFloat(tdv)
+					if (!isNaN(value)) {
+						console.log(value)
+						console.log("puissance : "+pui);
+						console.log("index : "+index);
+						if (index == -1) {
+							tabPui.push({puissance: pui, valeur : value})
+						}
+						else {
+							tabPui[index].valeur += value
+						}
+						console.log("tabPui->puissance = "+tabPui[1].puissance);
+						console.log("tabpui = "+tabPui);
+					}
+				}
+				else {
+					if (index == -1) {
+						tabPui.push({puissance: pui, valeur : 1.00})
+					}
+					else {
+						tabPui[index].valeur += 1.00
+					}
+					//console.log("tabpui = "+tabPui);
+				}
+				console.log('pui = '+pui)
+			}
+            else if (posx != -1) {
+				var index = checkIfPuiExist(tabPui, 1)
+                if (tabGauche[i][posx -1]) {
+                    var tdv = tabGauche[i].substr(0)
+                    var value = parseFloat(tdv)
                     if (!isNaN(value)) {
 						console.log(value)
-                        a += value  
-                    }
-                    else
-                        a += 1.00;
+						if (index == -1) {
+							tabPui.push({puissance: 1, valeur : value})
+						}
+						else {
+							tabPui[index].valeur += value
+						}
+						console.log("tabpui = "+tabPui);
+					}
                 }
-                else
-                    a += 1.00;
-            }
-            else if (posx != -1) {
-                if (tabGauche[i][posx -1]) {
-                    var tgv = tabGauche[i].substr(0, posx)
-                    console.log("tgv-"+tgv)
-                    var value = parseFloat(tgv)
-                    if (!isNaN(value)) {
-						console.log(value);
-						console.log("at this statement b equal "+parseFloat(b));
-                        b = b + value
-						console.log("at this statement b equal "+b);
-                    }
-                    else
-                        b =  b + 1.00;
-                }
-                else
-                    b = b  + 1.00;
+                else {
+					if (index == -1) {
+						tabPui.push({puissance: 1, valeur : 1.00})
+					}
+					else {
+						tabPui[index].valeur += 1.00
+					}
+				}
             }
             else if (posnum != -1) {
-                if (!((tabGauche[i][posnum - 1] && tabGauche[i][posnum -1] == '^') 
-                    || (tabGauche[i][posnum + 1] && tabGauche[i][posnum + 1] == 'x'))) {
-                        if (tabGauche[i][posnum] != '0' && !isNaN(parseFloat(tabGauche[i][posnum]))) {
-                            c += parseFloat(tabGauche[i]);
-                        }
-                }
+                var index = checkIfPuiExist(tabPui, 0)
+				var value = parseFloat(tabGauche[i]);
+				if (index == -1) {
+					tabPui.push({puissance: 0, valeur : value})
+				}
+				else {
+					tabPui[index].valeur += value
+				}
             }
-			console.log("turn g = "+i+" and a = "+a+" b = "+b+" c = "+c);
         }
-        solution(a, b, c)
+		selectSolution(tabPui);
+	}
+	
+	function selectSolution(tabPui) {
+		var degreZero = false;
+		var degreUn = false;
+		var degreDeux = false;
+		var degreEleve = false;
+		var a = 0.00;
+		var b = 0.00;
+		var c = 0.00;
+		for (let i in tabPui) {
+			let elem = tabPui[i]
+			console.log(elem);
+			console.log("Puissance = "+elem.puissance+" and value = "+elem.valeur);
+			if (elem.puissance >= 3) {
+				degreEleve = true
+			}
+			else if (elem.puissance == 2) {
+				a = elem.valeur
+				degreDeux = true
+			}
+			else if (elem.puissance == 1) {
+				b = elem.valeur
+				degreUn = true
+			}
+			else if (elem.puissance == 0) {
+				c = elem.valeur
+				degreZero = true;
+			}
+		}
+		if (degreEleve == true) {
+			console.log("il faut reduire l'equation");
+		}
+		else if (degreDeux == true && a != 0) {
+			solution(a,b,c);
+		}
+		else if (degreUn && b != 0) {
+			solutionEquationDegreUn(b, c);
+		}
+		else if (degreZero && c != 0) {
+			solutionEquationDegreZero(c);
+		}
+		else {
+			console.log("L'equation n'est pas resoluble, tout les nombres sont admis !");
+		}
+	}
+	
+	function solutionEquationDegreUn(b, c) {
+		console.log("reponse = "+ (c/b));
+		$('.message_input').val(c /b)
+        $('.send_message').click()
 	}
 	
 	function splitBySymbol(tabChar) {
@@ -143,14 +258,6 @@
     function indexation(tabChar) {
 		mergeRightToLeft(tabChar)
     }
-
-	//5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0
-    //a = 0 b = 5 c = 0
-    //25 + 0
-    //d = 25 
-    // -5 - 5 / 0 = -10 /0 = 0 
-    // -5 + 5 / 0 = 0 / 0 = 0
-
     
     function solution(a, b, c) {
         console.log("a = " + parseFloat(a))
