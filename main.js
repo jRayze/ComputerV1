@@ -1,7 +1,7 @@
     function parseCalculator(text) {
         var stringparce = text.replace(/x\^0\s/gi,'')
-		stringparce = stringparce.replace(/x\^1\s/gi,'x')
-        stringparce = stringparce.replace(/\*/g,'')
+        stringparce = stringparce.replace(/x\^1\s/gi,'x')
+        //stringparce = stringparce.replace(/\*/g,'')
 		stringparce = stringparce.replace(/\s/g,'')
         console.log(stringparce)
         return stringparce.split("=")
@@ -13,6 +13,11 @@
 ** c = -9,3
 ** delta = 
 */
+    function multiplyX(nbX, nbMul) {
+        var x = parseFloat(nbX)
+        var Mul = parseFloat(nbMul)
+        return (nbX * nbMul)
+    }
 	function checkIfPuiExist(tableau, puissance) {
 		var index = 0
 		for (var i in tableau) {
@@ -26,172 +31,119 @@
 		return -1
 	} 
 
-	function mergeRightToLeft(tabChar) {
+    function fillTabPuissance(tab, tabPui, isneg) {
+        for (var i = 0; tab[i]; i++) {
+            var indexmul = tab[i].search(/x\^[0-9]+/gi)
+            if (indexmul != -1) {
+                var cpt = indexmul + 2
+                while (tab[i][cpt] && tab[i][cpt] != '*' ) {
+                    cpt++
+                }
+                var symb = tab[i][cpt]
+                console.log("symb= "+symb)
+                if (tab[i][cpt] && tab[i][cpt + 1]) {
+                    cpt++
+                    var newstr = tab[i].substr(cpt)
+                    console.log("substr1 = "+newstr)
+                    tab[i] = newstr + tab[i].substr(0, cpt)
+                }
+            }
+            tab[i] = tab[i].replace(/\*/g,'');
+            var index = tab[i].search(/x\d/)
+            if (index != -1) {
+                tab[i] = tab[i].substr(index + 1) + 'x'
+                console.log("substr = "+tab[i])
+            }  
+            console.log("tab[i] = "+tab[i])
+            var posx = tab[i].search(/x/gi)
+            var posnum = tab[i].search(/\d/gi)
+            var posxpui = tab[i].search(/x\^[0-9]/gi)
+			if (posxpui != -1) {
+				var pui = parseFloat(tab[i].substr(posxpui + 2))
+				var index = checkIfPuiExist(tabPui, pui)
+				if (tab[i][posxpui -1]) {
+					var tdv = tab[i].substr(0, posxpui);
+					var value = parseFloat(tdv)
+					if (!isNaN(value)) {
+						console.log(value)
+						if (index == -1) {
+							tabPui.push({puissance: pui, valeur : (isneg == 0) ? value : value * -1 })
+						}
+						else {
+							tabPui[index].valeur += (isneg == 0) ? value : value * -1
+						}
+						console.log("tabpui = "+tabPui);
+					}
+				}
+				else {
+					if (index == -1) {
+						tabPui.push({puissance: pui, valeur : (isneg == 0) ? 1.00 : -1.00 })
+					}
+					else {
+						tabPui[index].valeur += (isneg == 0) ? 1.00 : -1.00
+					}
+				}
+				console.log('pui = '+pui)
+			}
+            else if (posx != -1) {
+				var index = checkIfPuiExist(tabPui, 1)
+                if (tab[i][posx -1]) {
+                    var tdv = tab[i].substr(0)
+                    var value = parseFloat(tdv)
+                    if (!isNaN(value)) {
+						console.log(value)
+						if (index == -1) {
+							tabPui.push({puissance: 1, valeur : (isneg == 0) ? value : value * -1 })
+						}
+						else {
+							tabPui[index].valeur += (isneg == 0) ? value : value * -1
+						}
+						console.log("tabpui = "+tabPui);
+					}
+                }
+                else {
+					if (index == -1) {
+						tabPui.push({puissance: 1, valeur : (isneg == 0) ? 1.00 : -1.00})
+					}
+					else {
+						tabPui[index].valeur += (isneg == 0) ? 1.00 : -1.00
+					}
+				}
+            }
+            else if (posnum != -1) {
+                var index = checkIfPuiExist(tabPui, 0)
+				var value = parseFloat(tab[i]);
+				if (index == -1) {
+					tabPui.push({puissance: 0, valeur : (isneg == 0) ? value : value * -1})
+				}
+				else {
+					tabPui[index].valeur += (isneg == 0 ) ? value : value * -1
+				}
+            }
+        }
+        return tabPui
+    }
+
+	function getTabPuissance(tabChar) {
 		//fonction qui additionne les valeurs x apres le égal avec celle avant le egal --- penser a inverser la valeur "1x = -1x"
 		var tabGauche = new Array()
 		var tabDroite = new Array()
-		var tabResult = new Array()
-        var a = 0.00
-        var b = 0.00
-        var c = 0.00
-		var tabPui = [];
+        var tabEqGauche = [];
+        var tabEqDroite = [];
+        var tabResult = [];
 
         tabGauche = splitBySymbol(tabChar[0])
         console.log(tabGauche);
 		tabDroite = splitBySymbol(tabChar[1])
         console.log(tabDroite)
-        for (var i = 0; tabDroite[i]; i++) {
-            var index = tabDroite[i].search(/x\d/)
-            if (index != -1) {
-                tabDroite[i] = tabDroite[i].substr(1) + 'x'
-            }  
-            console.log("tabDroite[i] = "+tabDroite[i])
-            //var posxcarre = tabDroite[i].search(/x\^2/gi)
-            var posx = tabDroite[i].search(/x/gi)
-            var posnum = tabDroite[i].search(/\d/gi)
-            var posxpui = tabDroite[i].search(/x\^[0-9]/gi)
-			if (posxpui != -1) {
-				var pui = parseFloat(tabDroite[i].substr(posxpui + 2))
-				var index = checkIfPuiExist(tabPui, pui)
-				if (tabDroite[i][posxpui -1]) {
-					var tdv = tabDroite[i].substr(0, posxpui);
-					var value = parseFloat(tdv)
-					if (!isNaN(value)) {
-						console.log(value)
-						if (index == -1) {
-							tabPui.push({puissance: pui, valeur : (value * -1)})
-						}
-						else {
-							tabPui[index].valeur -= value
-						}
-						console.log("tabpui = "+tabPui);
-					}
-				}
-				else {
-					if (index == -1) {
-						tabPui.push({puissance: pui, valeur : -1.00})
-					}
-					else {
-						tabPui[index].valeur -= 1.00
-					}
-					//console.log("tabpui = "+tabPui);
-				}
-				console.log('pui = '+pui)
-			}
-            else if (posx != -1) {
-				var index = checkIfPuiExist(tabPui, 1)
-                if (tabDroite[i][posx -1]) {
-                    var tdv = tabDroite[i].substr(0)
-                    var value = parseFloat(tdv)
-                    if (!isNaN(value)) {
-						console.log(value)
-						if (index == -1) {
-							tabPui.push({puissance: 1, valeur : (value * -1)})
-						}
-						else {
-							tabPui[index].valeur -= value
-						}
-						console.log("tabpui = "+tabPui);
-					}
-                }
-                else {
-					if (index == -1) {
-						tabPui.push({puissance: 1, valeur : -1.00})
-					}
-					else {
-						tabPui[index].valeur -= 1.00
-					}
-				}
-            }
-            else if (posnum != -1) {
-                var index = checkIfPuiExist(tabPui, 0)
-				var value = parseFloat(tabDroite[i]);
-				if (index == -1) {
-					tabPui.push({puissance: 0, valeur : (value * -1)})
-				}
-				else {
-					tabPui[index].valeur -= value
-				}
-            }
+        tabResult = fillTabPuissance(tabGauche, tabResult, 0)
+        console.log(tabEqGauche)
+        tabResult = fillTabPuissance(tabDroite, tabResult, 1)
+        for (var i in tabResult) {
+            var elem = tabResult[i];
+            console.log(i+": Puissance = "+elem.puissance+" | Valeur = "+elem.valeur)
         }
-        for (var i = 0; tabGauche[i]; i++) {
-            var index = tabGauche[i].search(/x\d/)
-            if (index != -1) {
-                tabGauche[i] = tabGauche[i].substr(1) + 'x'
-            }  
-            console.log("tabGauche[i] = "+tabGauche[i])
-            //var posxcarre = tabGauche[i].search(/x\^2/gi)
-            var posx = tabGauche[i].search(/x/gi)
-            var posnum = tabGauche[i].search(/\d/gi)
-            var posxpui = tabGauche[i].search(/x\^[0-9]/gi)
-			if (posxpui != -1) {
-				var pui = parseFloat(tabGauche[i].substr(posxpui + 2))
-				var index = checkIfPuiExist(tabPui, pui)
-				if (tabGauche[i][posxpui -1]) {
-					var tdv = tabGauche[i].substr(0, posxpui);
-					var value = parseFloat(tdv)
-					if (!isNaN(value)) {
-						console.log(value)
-						console.log("puissance : "+pui);
-						console.log("index : "+index);
-						if (index == -1) {
-							tabPui.push({puissance: pui, valeur : value})
-						}
-						else {
-							tabPui[index].valeur += value
-						}
-						console.log("tabPui->puissance = "+tabPui[1].puissance);
-						console.log("tabpui = "+tabPui);
-					}
-				}
-				else {
-					if (index == -1) {
-						tabPui.push({puissance: pui, valeur : 1.00})
-					}
-					else {
-						tabPui[index].valeur += 1.00
-					}
-					//console.log("tabpui = "+tabPui);
-				}
-				console.log('pui = '+pui)
-			}
-            else if (posx != -1) {
-				var index = checkIfPuiExist(tabPui, 1)
-                if (tabGauche[i][posx -1]) {
-                    var tdv = tabGauche[i].substr(0)
-                    var value = parseFloat(tdv)
-                    if (!isNaN(value)) {
-						console.log(value)
-						if (index == -1) {
-							tabPui.push({puissance: 1, valeur : value})
-						}
-						else {
-							tabPui[index].valeur += value
-						}
-						console.log("tabpui = "+tabPui);
-					}
-                }
-                else {
-					if (index == -1) {
-						tabPui.push({puissance: 1, valeur : 1.00})
-					}
-					else {
-						tabPui[index].valeur += 1.00
-					}
-				}
-            }
-            else if (posnum != -1) {
-                var index = checkIfPuiExist(tabPui, 0)
-				var value = parseFloat(tabGauche[i]);
-				if (index == -1) {
-					tabPui.push({puissance: 0, valeur : value})
-				}
-				else {
-					tabPui[index].valeur += value
-				}
-            }
-        }
-		selectSolution(tabPui);
+		selectSolution(tabResult);
 	}
 	
 	function selectSolution(tabPui) {
@@ -235,15 +187,22 @@
 			solutionEquationDegreZero(c);
 		}
 		else {
-			console.log("L'equation n'est pas resoluble, tout les nombres sont admis !");
+			console.log("L'equation n'est pas resoluble, tout les nombres reels sont admis !");
 		}
-	}
+    }
+    
+    function solutionEquationDegreZero(c) {
+        var reponse = c + " = 0"
+        $('.message_input').val(reponse)
+        $('.send_message').click()
+    }
 	
 	function solutionEquationDegreUn(b, c) {
-		console.log("reponse = "+ (c/b));
-		$('.message_input').val(c /b)
+		console.log("reponse = "+ ((c * -1)/b));
+		$('.message_input').val((c * -1) /b)
         $('.send_message').click()
-	}
+    }
+    
 	
 	function splitBySymbol(tabChar) {
 		//verifier si on split par - et + si ca fonctionne (idee = si - et precede d'un plus on annule le + et on ajoute le moins a la valeur qui suit)
@@ -256,7 +215,7 @@
 	}
 	
     function indexation(tabChar) {
-		mergeRightToLeft(tabChar)
+		getTabPuissance(tabChar)
     }
     
     function solution(a, b, c) {
@@ -404,3 +363,189 @@
             }, 1000);
         });
     }.call(this));
+
+    // code de base pour les tabs Gauche et Droite
+            /*for (var i = 0; tabDroite[i]; i++) {
+            var indexmul = tabDroite[i].search(/x\^[0-9]+/gi)
+            if (indexmul != -1) {
+                var cpt = indexmul + 2
+                while (tabDroite[i][cpt] && tabDroite[i][cpt] != '*' ) {
+                    cpt++
+                }
+                var symb = tabDroite[i][cpt]
+                console.log("symb= "+symb)
+                if (tabDroite[i][cpt] && tabDroite[i][cpt + 1]) {
+                    cpt++
+                    var newstr = tabDroite[i].substr(cpt)
+                    console.log("substr1 = "+newstr)
+                    tabDroite[i] = newstr + tabDroite[i].substr(0, cpt)
+                }
+            }*/
+            //tabDroite[i] = tabDroite[i].replace(/\*/g,'');
+           /* var index = tabDroite[i].search(/x\d/)
+            if (index != -1) {
+                tabDroite[i] = tabDroite[i].substr(index + 1) + 'x'
+                console.log("substr = "+tabDroite[i])
+            }  
+            console.log("tabDroite[i] = "+tabDroite[i])
+            //var posxcarre = tabDroite[i].search(/x\^2/gi)
+            var posx = tabDroite[i].search(/x/gi)
+            var posnum = tabDroite[i].search(/\d/gi)
+            var posxpui = tabDroite[i].search(/x\^[0-9]/gi)
+			if (posxpui != -1) {
+				var pui = parseFloat(tabDroite[i].substr(posxpui + 2))
+				var index = checkIfPuiExist(tabPui, pui)
+				if (tabDroite[i][posxpui -1]) {
+					var tdv = tabDroite[i].substr(0, posxpui);
+					var value = parseFloat(tdv)
+					if (!isNaN(value)) {
+						console.log(value)
+						if (index == -1) {
+							tabPui.push({puissance: pui, valeur : (value * -1)})
+						}
+						else {
+							tabPui[index].valeur -= value
+						}
+						console.log("tabpui = "+tabPui);
+					}
+				}
+				else {
+					if (index == -1) {
+						tabPui.push({puissance: pui, valeur : -1.00})
+					}
+					else {
+						tabPui[index].valeur -= 1.00
+					}
+					//console.log("tabpui = "+tabPui);
+				}
+				console.log('pui = '+pui)
+			}
+            else if (posx != -1) {
+				var index = checkIfPuiExist(tabPui, 1)
+                if (tabDroite[i][posx -1]) {
+                    var tdv = tabDroite[i].substr(0)
+                    var value = parseFloat(tdv)
+                    if (!isNaN(value)) {
+						console.log(value)
+						if (index == -1) {
+							tabPui.push({puissance: 1, valeur : (value * -1)})
+						}
+						else {
+							tabPui[index].valeur -= value
+						}
+						console.log("tabpui = "+tabPui);
+					}
+                }
+                else {
+					if (index == -1) {
+						tabPui.push({puissance: 1, valeur : -1.00})
+					}
+					else {
+						tabPui[index].valeur -= 1.00
+					}
+				}
+            }
+            else if (posnum != -1) {
+                var index = checkIfPuiExist(tabPui, 0)
+				var value = parseFloat(tabDroite[i]);
+				if (index == -1) {
+					tabPui.push({puissance: 0, valeur : (value * -1)})
+				}
+				else {
+					tabPui[index].valeur -= value
+				}
+            }
+        }
+        for (var i = 0; tabGauche[i]; i++) {
+            var indexmul = tabGauche[i].search(/x\^[0-9]+/gi)
+            if (indexmul != -1) {
+                var cpt = indexmul + 2
+                while (tabGauche[i][cpt] && tabGauche[i][cpt] != '*' ) {
+                    cpt++
+                }
+                var symb = tabGauche[i][cpt]
+                console.log("symb= "+symb)
+                if (tabGauche[i][cpt] && tabGauche[i][cpt + 1]) {
+                    cpt++
+                    var newstr = tabGauche[i].substr(cpt)
+                    console.log("substr1 = "+newstr)
+                    tabGauche[i] = newstr + tabGauche[i].substr(0, cpt)
+                }
+            }*/
+            //tabGauche[i] = tabGauche[i].replace(/\*/g,'');
+           /* var index = tabGauche[i].search(/x\d/)
+            if (index != -1) {
+                tabGauche[i] = tabGauche[i].substr(1) + 'x'
+            }  
+            console.log("tabGauche[i] = "+tabGauche[i])
+            //var posxcarre = tabGauche[i].search(/x\^2/gi)
+            var posx = tabGauche[i].search(/x/gi)
+            var posnum = tabGauche[i].search(/\d/gi)
+            var posxpui = tabGauche[i].search(/x\^[0-9]/gi)
+			if (posxpui != -1) {
+				var pui = parseFloat(tabGauche[i].substr(posxpui + 2))
+				var index = checkIfPuiExist(tabPui, pui)
+				if (tabGauche[i][posxpui -1]) {
+					var tdv = tabGauche[i].substr(0, posxpui);
+					var value = parseFloat(tdv)
+					if (!isNaN(value)) {
+						console.log(value)
+						console.log("puissance : "+pui);
+						console.log("index : "+index);
+						if (index == -1) {
+							tabPui.push({puissance: pui, valeur : value})
+						}
+						else {
+							tabPui[index].valeur += value
+						}
+						console.log("tabPui->puissance = "+tabPui[0].puissance);
+						console.log("tabpui = "+tabPui);
+					}
+				}
+				else {
+					if (index == -1) {
+						tabPui.push({puissance: pui, valeur : 1.00})
+					}
+					else {
+						tabPui[index].valeur += 1.00
+					}
+					//console.log("tabpui = "+tabPui);
+				}
+				console.log('pui = '+pui)
+			}
+            else if (posx != -1) {
+				var index = checkIfPuiExist(tabPui, 1)
+                if (tabGauche[i][posx -1]) {
+                    var tdv = tabGauche[i].substr(0)
+                    var value = parseFloat(tdv)
+                    if (!isNaN(value)) {
+						console.log(value)
+						if (index == -1) {
+							tabPui.push({puissance: 1, valeur : value})
+						}
+						else {
+							tabPui[index].valeur += value
+						}
+						console.log("tabpui = "+tabPui);
+					}
+                }
+                else {
+					if (index == -1) {
+						tabPui.push({puissance: 1, valeur : 1.00})
+					}
+					else {
+						tabPui[index].valeur += 1.00
+					}
+				}
+            }
+            else if (posnum != -1) {
+                var index = checkIfPuiExist(tabPui, 0)
+				var value = parseFloat(tabGauche[i]);
+				if (index == -1) {
+					tabPui.push({puissance: 0, valeur : value})
+				}
+				else {
+					tabPui[index].valeur += value
+				}
+            }
+        }*/
