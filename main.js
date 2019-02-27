@@ -59,7 +59,7 @@
 					if (!isNaN(value)) {
 						console.log(value)
 						if (index == -1) {
-							tabPui.push({puissance: pui, valeur : value})
+							tabPui.push({puissance: pui, valeur : (value * -1)})
 						}
 						else {
 							tabPui[index].valeur -= value
@@ -86,7 +86,7 @@
                     if (!isNaN(value)) {
 						console.log(value)
 						if (index == -1) {
-							tabPui.push({puissance: 1, valeur : value})
+							tabPui.push({puissance: 1, valeur : (value * -1)})
 						}
 						else {
 							tabPui[index].valeur -= value
@@ -107,7 +107,7 @@
                 var index = checkIfPuiExist(tabPui, 0)
 				var value = parseFloat(tabDroite[i]);
 				if (index == -1) {
-					tabPui.push({puissance: 0, valeur : value})
+					tabPui.push({puissance: 0, valeur : (value * -1)})
 				}
 				else {
 					tabPui[index].valeur -= value
