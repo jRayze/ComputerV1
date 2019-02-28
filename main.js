@@ -1,8 +1,56 @@
+    function isAlpha(index, ch){
+        console.log(ch)
+        console.log(index)
+        let res
+        index = ch.search(/\D/gi)
+        if (index != -1 && ch[index]) {
+            switch (ch[index]) {
+                case 'x': case 'X': case '*': case '+': case '-': case '=': case '^': case '.': case ' ':
+                    res = isAlpha(index + 1, ch.substr(index + 1))
+                    break;
+                default :
+                    res = 1;
+                    break;
+            }
+            /*if (ch[index] != 'x' && ch[index] != 'X' && ch[index] != '*' && ch[index] != '+' && ch[index] != '-' && ch[index] != '=' && ch[index] != '^' && ch[index] != '.' && ch[index] != ' ')
+                return 1
+            else 
+                return isAlpha(index + 1, ch.substr(index + 1))*/
+        }
+        return res
+    }  
+
+    function notHaveEqual(text){
+        if (text.search(/=/gi) == -1)
+            return 1
+        return 0
+    }
+
+    function parseDoubleX(text) {
+        if (text.search(/xx/gi) != -1 || text.search(/x\+/gi) != -1 ||text.search(/x\=/gi) != -1 || text.search(/x\-/gi) != -1 || text.search(/x\^/gi) != -1) {
+            return 1
+        }
+        return 0
+    }
+
     function parseCalculator(text) {
+        if (isAlpha(0, text) == 1 || notHaveEqual(text) == 1) {
+            var reponse = "Veuillez entrer une equation valide"
+            console.log(reponse + "toto")
+            $('.message_input').val(reponse)
+            $('.send_message').click()
+            return 
+        }
         var stringparce = text.replace(/x\^0\s/gi,'')
         stringparce = stringparce.replace(/x\^1\s/gi,'x')
-        //stringparce = stringparce.replace(/\*/g,'')
-		stringparce = stringparce.replace(/\s/g,'')
+        stringparce = stringparce.replace(/\s/g,'')
+        if ( parseDoubleX(text) == 1) {
+            var reponse = "Veuillez entrer une equation valide"
+            console.log(reponse)
+            $('.message_input').val(reponse)
+            $('.send_message').click()
+            return 
+        }
         console.log(stringparce)
         return stringparce.split("=")
     }
@@ -57,7 +105,7 @@
             console.log("tab[i] = "+tab[i])
             var posx = tab[i].search(/x/gi)
             var posnum = tab[i].search(/\d/gi)
-            var posxpui = tab[i].search(/x\^[0-9]/gi)
+            var posxpui = tab[i].search(/x\^[0-9]+/gi)
 			if (posxpui != -1) {
 				var pui = parseFloat(tab[i].substr(posxpui + 2))
 				var index = checkIfPuiExist(tabPui, pui)
@@ -143,6 +191,9 @@
             var elem = tabResult[i];
             console.log(i+": Puissance = "+elem.puissance+" | Valeur = "+elem.valeur)
         }
+        tabResult.sort(function(a, b) {
+            return b.puissance - a.puissance;
+        });
 		selectSolution(tabResult);
 	}
 	
@@ -175,34 +226,76 @@
 			}
 		}
 		if (degreEleve == true) {
+            //reduction(tabPui)
 			console.log("il faut reduire l'equation");
 		}
 		else if (degreDeux == true && a != 0) {
-			solution(a,b,c);
+            var reponse = reduction(tabPui)
+			solutionDegreDeux(a,b,c, reponse);
 		}
 		else if (degreUn && b != 0) {
-			solutionEquationDegreUn(b, c);
+            var reponse = reduction(tabPui)
+			solutionEquationDegreUn(b, c, reponse);
 		}
 		else if (degreZero && c != 0) {
-			solutionEquationDegreZero(c);
+            var reponse = reduction(tabPui)
+			solutionEquationDegreZero(reponse);
 		}
 		else {
-			console.log("L'equation n'est pas resoluble, tout les nombres reels sont admis !");
+            var reponse = "Reduction : 0 = 0<br>L'equation n'est pas resoluble, tout les nombres reels sont admis !";
+            console.log(reponse)
+            $('.message_input').val(reponse)
+            $('.send_message').click()
 		}
     }
     
-    function solutionEquationDegreZero(c) {
-        var reponse = c + " = 0"
+    function solutionDegreDeux(a, b, c, reponse) {
+        console.log("a = " + parseFloat(a))
+        console.log("b = " + parseFloat(b))
+        console.log("c = " + parseFloat(c))
+        var delta = calculDelta(a,b,c)
+        if (delta == 0) {
+            reponse = reponse + "<br>Le discriminant est 0, la solution est :<br>"
+            reponse = reponse + "Solution : " + calculSolution0(a, b).toFixed(6)+"<br>"
+        }
+        else if (delta > 0) {
+            reponse = reponse + "<br>Le discriminant est positif, les deux solutions sont :<br>"
+           // reponse = reponse + "a = "+a+" b = "+b+" delta = "+delta+"<br>"
+            reponse = reponse + "Solution 1 : " + calculSolution1(a,b,delta).toFixed(6)+"<br>"
+            reponse = reponse + "Solution 2 : " + calculSolution2(a,b,delta).toFixed(6)+"<br>"
+        }
+        else {
+            reponse =  reponse + "<br>Le discriminant est negatif, il n'y a aucune solution pour les nombres reels."
+        }
         $('.message_input').val(reponse)
         $('.send_message').click()
     }
-	
-	function solutionEquationDegreUn(b, c) {
-		console.log("reponse = "+ ((c * -1)/b));
-		$('.message_input').val((c * -1) /b)
+
+    function reduction(tabPui) {
+        var reduct = "Reduction : ";
+        for (var i in tabPui) {
+           let elem = tabPui[i];
+            if (i > 0) {
+                reduct = reduct + " + ";
+            }
+            reduct = reduct + elem.valeur + "X^"+elem.puissance; 
+        }
+        reduct = reduct + " = 0"
+        console.log(reduct);
+        return reduct
+    }
+
+	function solutionEquationDegreUn(b, c, reponse) {
+        reponse = reponse +"<br>Equation du premier degre, la solution est : <br>" +((c * -1)/b)
+		$('.message_input').val(reponse)
         $('.send_message').click()
     }
     
+    function solutionEquationDegreZero(reponse) {
+        reponse = reponse+"<br> Il n'y a pas de solution pour les nombres reels !"
+        $('.message_input').val(reponse)
+        $('.send_message').click()
+    }
 	
 	function splitBySymbol(tabChar) {
 		//verifier si on split par - et + si ca fonctionne (idee = si - et precede d'un plus on annule le + et on ajoute le moins a la valeur qui suit)
@@ -218,28 +311,6 @@
 		getTabPuissance(tabChar)
     }
     
-    function solution(a, b, c) {
-        console.log("a = " + parseFloat(a))
-        console.log("b = " + parseFloat(b))
-        console.log("c = " + parseFloat(c))
-        var delta = calculDelta(a,b,c)
-        if (delta == 0) {
-            var reponse = "Discriminant equal 0, one solution:<br>"
-            reponse = reponse + "The solution : " + calculSolution0(a, b).toFixed(6)+"<br>"
-        }
-        else if (delta > 0) {
-            var reponse = "Discriminant is strictly positive, the two solutions are:<br>"
-           // reponse = reponse + "a = "+a+" b = "+b+" delta = "+delta+"<br>"
-            reponse = reponse + "The solution 1 : " + calculSolution1(a,b,delta).toFixed(6)+"<br>"
-            reponse = reponse + "The solution 2 : " + calculSolution2(a,b,delta).toFixed(6)+"<br>"
-        }
-        else {
-            var reponse = "Discriminant is negative, no solution."
-        }
-        $('.message_input').val(reponse)
-        $('.send_message').click()
-        
-    }
 	
 	function calculDelta(a, b, c) {
 
@@ -306,7 +377,7 @@
         indexation(tabChar)
     }
 
-    (function () {
+    $(function () {
         var Message;
         Message = function (arg) {
             this.text = arg.text, this.message_side = arg.message_side;
