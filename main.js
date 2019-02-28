@@ -27,7 +27,7 @@
     }
 
     function parseDoubleX(text) {
-        if (text.search(/xx/gi) != -1 || text.search(/x\+/gi) != -1 ||text.search(/x\=/gi) != -1 || text.search(/x\-/gi) != -1 || text.search(/x\^/gi) != -1) {
+        if (text.search(/xx/gi) != -1 || text.search(/x/gi) != -1 ||text.search(/x\=/gi) != -1 || text.search(/x\-/gi) != -1 || text.search(/x\^/gi) != -1) {
             return 1
         }
         return 0
