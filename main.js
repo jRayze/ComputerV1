@@ -1,7 +1,7 @@
     function isAlpha(index, ch){
         console.log(ch)
         console.log(index)
-        let res
+        let res = 0
         index = ch.search(/\D/gi)
         if (index != -1 && ch[index]) {
             switch (ch[index]) {
@@ -12,11 +12,8 @@
                     res = 1;
                     break;
             }
-            /*if (ch[index] != 'x' && ch[index] != 'X' && ch[index] != '*' && ch[index] != '+' && ch[index] != '-' && ch[index] != '=' && ch[index] != '^' && ch[index] != '.' && ch[index] != ' ')
-                return 1
-            else 
-                return isAlpha(index + 1, ch.substr(index + 1))*/
         }
+        console.log("res = "+res)
         return res
     }  
 
@@ -26,10 +23,47 @@
         return 0
     }
 
-    function parseDoubleX(text) {
-        if (text.search(/xx/gi) != -1 || text.search(/x/gi) != -1 ||text.search(/x\=/gi) != -1 || text.search(/x\-/gi) != -1 || text.search(/x\^/gi) != -1) {
+    function checkCombinaison(text) {
+        var index = 0
+        if (text.search(/\./gi) != -1) {
+            if (text.search(/[0-9]\.[0-9]/gi) == -1)
             return 1
         }
+        while (text[index]) {
+            if (text[index] == 'x' || text[index] == 'X') {
+                if (text[index + 1] && (text[index + 1] == 'x' || text[index + 1]  == 'X'))
+                    return 1
+            }
+            else if (text[index] == '*') {
+                if (text[index + 1] && text[index + 1] == '*')
+                    return 1
+                
+            }
+            else if (text[index] == "+") {
+                if (text[index + 1] && text[index + 1] == "+")
+                    return 1
+            }
+            else if (text[index] == "-") {
+                if (text[index + 1] && text[index + 1] == "-")
+                    return 1
+            }
+            else if (text[index] == "=") {
+                if (ttext[index + 1] && text[index + 1] == "=")
+                    return 1
+            }
+            else if (text[index] == "^") {
+                if (text[index + 1] && ( text[index + 1]  == "^" || text[index + 1] == "x")) 
+                    return 1
+            }
+            index++;
+        }
+        //text = text.replace(/\s/g,'')
+       //if (text.search(/xx/gi) != -1 || text.search(/\^x/gi) != -1 || text.search(/\^-/gi) != -1 || text.search(/\*\-/gi) != -1 || text.search(/[0-9]+\*x\^[0-9]*\*/gi) != -1 || text.search(/[0-9]+x\*[0-9]*\^/gi) != -1) {
+         //   return 1
+        //}
+        //else if ((text.search(/\=\-/gi) != -1 && text.search(/\=\-[0-9]*/gi) == -1) || text.search(/-=/gi) != -1) {
+         //   return 1
+        //}
         return 0
     }
 
@@ -44,7 +78,7 @@
         var stringparce = text.replace(/x\^0\s/gi,'')
         stringparce = stringparce.replace(/x\^1\s/gi,'x')
         stringparce = stringparce.replace(/\s/g,'')
-        if ( parseDoubleX(text) == 1) {
+        if ( checkCombinaison(stringparce) == 1) {
             var reponse = "Veuillez entrer une equation valide"
             console.log(reponse)
             $('.message_input').val(reponse)
@@ -176,8 +210,6 @@
 		//fonction qui additionne les valeurs x apres le égal avec celle avant le egal --- penser a inverser la valeur "1x = -1x"
 		var tabGauche = new Array()
 		var tabDroite = new Array()
-        var tabEqGauche = [];
-        var tabEqDroite = [];
         var tabResult = [];
 
         tabGauche = splitBySymbol(tabChar[0])
@@ -185,7 +217,6 @@
 		tabDroite = splitBySymbol(tabChar[1])
         console.log(tabDroite)
         tabResult = fillTabPuissance(tabGauche, tabResult, 0)
-        console.log(tabEqGauche)
         tabResult = fillTabPuissance(tabDroite, tabResult, 1)
         for (var i in tabResult) {
             var elem = tabResult[i];
@@ -226,8 +257,11 @@
 			}
 		}
 		if (degreEleve == true) {
-            //reduction(tabPui)
-			console.log("il faut reduire l'equation");
+            var reponse = reduction(tabPui)
+            reponse = reponse + "<br>L'equation est de degre superieur a 2 !"
+            $('.message_input').val(reponse)
+            $('.send_message').click()
+			//console.log("il faut reduire l'equation");
 		}
 		else if (degreDeux == true && a != 0) {
             var reponse = reduction(tabPui)
@@ -244,8 +278,6 @@
 		else {
             var reponse = "Reduction : 0 = 0<br>L'equation n'est pas resoluble, tout les nombres reels sont admis !";
             console.log(reponse)
-            $('.message_input').val(reponse)
-            $('.send_message').click()
 		}
     }
     
@@ -266,6 +298,7 @@
         }
         else {
             reponse =  reponse + "<br>Le discriminant est negatif, il n'y a aucune solution pour les nombres reels."
+            reponse =  reponse + calculSolutionComplexe(a, b, delta)
         }
         $('.message_input').val(reponse)
         $('.send_message').click()
@@ -275,10 +308,13 @@
         var reduct = "Reduction : ";
         for (var i in tabPui) {
            let elem = tabPui[i];
-            if (i > 0) {
-                reduct = reduct + " + ";
+            if (elem.valeur != 0) {
+
+                if (i > 0) {
+                    reduct = reduct + " + ";
+                }
+                reduct = reduct + elem.valeur + "X^"+elem.puissance; 
             }
-            reduct = reduct + elem.valeur + "X^"+elem.puissance; 
         }
         reduct = reduct + " = 0"
         console.log(reduct);
@@ -308,12 +344,16 @@
 	}
 	
     function indexation(tabChar) {
+        if (tabChar[0] == "" || tabChar[1] == "") {
+            $('.message_input').val("Veuillez entrer une equation valide !")
+            $('.send_message').click()
+            return 
+        }
 		getTabPuissance(tabChar)
     }
     
 	
 	function calculDelta(a, b, c) {
-
       var res = (b * b) - ((4 * a) * c)
       return res;
     }
@@ -342,6 +382,33 @@
         console.log(res)
         return res
     }
+    
+    function calculSolutionComplexe(a, b, delta) {
+        var racineDelta = racineCarre((delta * - 1), 1.0, 0.0, 0.0)
+        if (racineDelta == 0) {
+            return 0
+        }
+        var res = "<br>Solution complexe :<br>";
+        var diviseur = 2 * a;
+        var bi = (racineDelta / diviseur)
+        var symb = (bi < 0) ? "+" : "-";
+        var reel = ((-b / diviseur) == 0) ? "" : (-b / diviseur)+" "
+        bi = (bi < 0) ? bi * - 1 : bi
+        
+        /*res = res + "Solution 1 : "+(b * -1)+" - "+racineDelta+" / "+diviseur+"<br>"+((b * -1))+"<br>"
+        res = res + "Solution 2 : "+(b * -1)+" + "+racineDelta+" / "+diviseur
+
+        res = res + */
+        res = res + "Solution 1 : " + reel + " &nbsp;&nbsp;" + " i * " + bi+"<br>"
+        res = res + "Solution 2 : " + reel + " - " + " " + "i * " + bi
+
+        console.log(res);
+        return res
+    }
+   /* -b + racineCarre(delta) / 2a
+    -b + racineCarre(deltaNeg) / 2a -> deltaNeg = delta * i^2 => racineCarre(deltaNeg) = racineCarree(deltaPos*i^2) -> racineCarre(delta) * racineCarree(i^2)
+    (-b + racineCarre(delta))/2a = (-b + i*racineCarre(deltaPos)) / 2a = racineCarre(deltaPos)/2a * i + (-b)/2a;*/
+
     function racineCarre(val, add, start, end) {
         var i = parseFloat(0.0 + start)
         var res = 0
@@ -434,189 +501,3 @@
             }, 1000);
         });
     }.call(this));
-
-    // code de base pour les tabs Gauche et Droite
-            /*for (var i = 0; tabDroite[i]; i++) {
-            var indexmul = tabDroite[i].search(/x\^[0-9]+/gi)
-            if (indexmul != -1) {
-                var cpt = indexmul + 2
-                while (tabDroite[i][cpt] && tabDroite[i][cpt] != '*' ) {
-                    cpt++
-                }
-                var symb = tabDroite[i][cpt]
-                console.log("symb= "+symb)
-                if (tabDroite[i][cpt] && tabDroite[i][cpt + 1]) {
-                    cpt++
-                    var newstr = tabDroite[i].substr(cpt)
-                    console.log("substr1 = "+newstr)
-                    tabDroite[i] = newstr + tabDroite[i].substr(0, cpt)
-                }
-            }*/
-            //tabDroite[i] = tabDroite[i].replace(/\*/g,'');
-           /* var index = tabDroite[i].search(/x\d/)
-            if (index != -1) {
-                tabDroite[i] = tabDroite[i].substr(index + 1) + 'x'
-                console.log("substr = "+tabDroite[i])
-            }  
-            console.log("tabDroite[i] = "+tabDroite[i])
-            //var posxcarre = tabDroite[i].search(/x\^2/gi)
-            var posx = tabDroite[i].search(/x/gi)
-            var posnum = tabDroite[i].search(/\d/gi)
-            var posxpui = tabDroite[i].search(/x\^[0-9]/gi)
-			if (posxpui != -1) {
-				var pui = parseFloat(tabDroite[i].substr(posxpui + 2))
-				var index = checkIfPuiExist(tabPui, pui)
-				if (tabDroite[i][posxpui -1]) {
-					var tdv = tabDroite[i].substr(0, posxpui);
-					var value = parseFloat(tdv)
-					if (!isNaN(value)) {
-						console.log(value)
-						if (index == -1) {
-							tabPui.push({puissance: pui, valeur : (value * -1)})
-						}
-						else {
-							tabPui[index].valeur -= value
-						}
-						console.log("tabpui = "+tabPui);
-					}
-				}
-				else {
-					if (index == -1) {
-						tabPui.push({puissance: pui, valeur : -1.00})
-					}
-					else {
-						tabPui[index].valeur -= 1.00
-					}
-					//console.log("tabpui = "+tabPui);
-				}
-				console.log('pui = '+pui)
-			}
-            else if (posx != -1) {
-				var index = checkIfPuiExist(tabPui, 1)
-                if (tabDroite[i][posx -1]) {
-                    var tdv = tabDroite[i].substr(0)
-                    var value = parseFloat(tdv)
-                    if (!isNaN(value)) {
-						console.log(value)
-						if (index == -1) {
-							tabPui.push({puissance: 1, valeur : (value * -1)})
-						}
-						else {
-							tabPui[index].valeur -= value
-						}
-						console.log("tabpui = "+tabPui);
-					}
-                }
-                else {
-					if (index == -1) {
-						tabPui.push({puissance: 1, valeur : -1.00})
-					}
-					else {
-						tabPui[index].valeur -= 1.00
-					}
-				}
-            }
-            else if (posnum != -1) {
-                var index = checkIfPuiExist(tabPui, 0)
-				var value = parseFloat(tabDroite[i]);
-				if (index == -1) {
-					tabPui.push({puissance: 0, valeur : (value * -1)})
-				}
-				else {
-					tabPui[index].valeur -= value
-				}
-            }
-        }
-        for (var i = 0; tabGauche[i]; i++) {
-            var indexmul = tabGauche[i].search(/x\^[0-9]+/gi)
-            if (indexmul != -1) {
-                var cpt = indexmul + 2
-                while (tabGauche[i][cpt] && tabGauche[i][cpt] != '*' ) {
-                    cpt++
-                }
-                var symb = tabGauche[i][cpt]
-                console.log("symb= "+symb)
-                if (tabGauche[i][cpt] && tabGauche[i][cpt + 1]) {
-                    cpt++
-                    var newstr = tabGauche[i].substr(cpt)
-                    console.log("substr1 = "+newstr)
-                    tabGauche[i] = newstr + tabGauche[i].substr(0, cpt)
-                }
-            }*/
-            //tabGauche[i] = tabGauche[i].replace(/\*/g,'');
-           /* var index = tabGauche[i].search(/x\d/)
-            if (index != -1) {
-                tabGauche[i] = tabGauche[i].substr(1) + 'x'
-            }  
-            console.log("tabGauche[i] = "+tabGauche[i])
-            //var posxcarre = tabGauche[i].search(/x\^2/gi)
-            var posx = tabGauche[i].search(/x/gi)
-            var posnum = tabGauche[i].search(/\d/gi)
-            var posxpui = tabGauche[i].search(/x\^[0-9]/gi)
-			if (posxpui != -1) {
-				var pui = parseFloat(tabGauche[i].substr(posxpui + 2))
-				var index = checkIfPuiExist(tabPui, pui)
-				if (tabGauche[i][posxpui -1]) {
-					var tdv = tabGauche[i].substr(0, posxpui);
-					var value = parseFloat(tdv)
-					if (!isNaN(value)) {
-						console.log(value)
-						console.log("puissance : "+pui);
-						console.log("index : "+index);
-						if (index == -1) {
-							tabPui.push({puissance: pui, valeur : value})
-						}
-						else {
-							tabPui[index].valeur += value
-						}
-						console.log("tabPui->puissance = "+tabPui[0].puissance);
-						console.log("tabpui = "+tabPui);
-					}
-				}
-				else {
-					if (index == -1) {
-						tabPui.push({puissance: pui, valeur : 1.00})
-					}
-					else {
-						tabPui[index].valeur += 1.00
-					}
-					//console.log("tabpui = "+tabPui);
-				}
-				console.log('pui = '+pui)
-			}
-            else if (posx != -1) {
-				var index = checkIfPuiExist(tabPui, 1)
-                if (tabGauche[i][posx -1]) {
-                    var tdv = tabGauche[i].substr(0)
-                    var value = parseFloat(tdv)
-                    if (!isNaN(value)) {
-						console.log(value)
-						if (index == -1) {
-							tabPui.push({puissance: 1, valeur : value})
-						}
-						else {
-							tabPui[index].valeur += value
-						}
-						console.log("tabpui = "+tabPui);
-					}
-                }
-                else {
-					if (index == -1) {
-						tabPui.push({puissance: 1, valeur : 1.00})
-					}
-					else {
-						tabPui[index].valeur += 1.00
-					}
-				}
-            }
-            else if (posnum != -1) {
-                var index = checkIfPuiExist(tabPui, 0)
-				var value = parseFloat(tabGauche[i]);
-				if (index == -1) {
-					tabPui.push({puissance: 0, valeur : value})
-				}
-				else {
-					tabPui[index].valeur += value
-				}
-            }
-        }*/
