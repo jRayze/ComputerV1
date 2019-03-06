@@ -25,34 +25,41 @@
 
     function checkCombinaison(text) {
         var index = 0
-        if (text.search(/\./gi) != -1) {
-            if (text.search(/[0-9]\.[0-9]/gi) == -1)
-            return 1
+        var point = -1
+        if ((point = text.search(/\./gi)) != -1) {
+            if ((text[point - 1] && isNaN(parseInt(text[point - 1]))) || (text[point + 1] && isNaN(parseInt(text[point + 1]))))
+                return 1
         }
         while (text[index]) {
             if (text[index] == 'x' || text[index] == 'X') {
-                if (text[index + 1] && (text[index + 1] == 'x' || text[index + 1]  == 'X'))
+                if (text[index + 1] && text[index + 1] != "-" && text[index + 1] != "+" && text[index + 1] != "=" && text[index + 1] != "^" && isNaN(parseInt(text[index + 1])))
+                {
+                    if (text[index + 1] == "*" && !text[index - 1])
+                        return 0
                     return 1
+                }
             }
             else if (text[index] == '*') {
-                if (text[index + 1] && text[index + 1] == '*')
+                if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && text[index + 1] != "-" && isNaN(parseInt(text[index + 1])))
                     return 1
                 
             }
             else if (text[index] == "+") {
-                if (text[index + 1] && text[index + 1] == "+")
+                if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && text[index + 1] != "-" && isNaN(parseInt(text[index + 1])))
                     return 1
             }
             else if (text[index] == "-") {
-                if (text[index + 1] && text[index + 1] == "-")
+                if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && isNaN(parseInt(text[index + 1])))
                     return 1
             }
             else if (text[index] == "=") {
-                if (ttext[index + 1] && text[index + 1] == "=")
+                if ((text[index + 1] && isNaN(parseInt(text[index + 1]))) && text[index + 1] != "-" && text[index + 1] != "x" && text[index + 1] != "X")
+                    return 1
+                if (!text[index + 1])
                     return 1
             }
             else if (text[index] == "^") {
-                if (text[index + 1] && ( text[index + 1]  == "^" || text[index + 1] == "x")) 
+                if (text[index + 1] && isNaN(parseInt(text[index + 1])))
                     return 1
             }
             index++;
@@ -68,6 +75,9 @@
     }
 
     function parseCalculator(text) {
+        console.log("text before parse ² = "+text)
+        text = text.replace('&sup2','^2')
+        console.log("text after parse ² = "+text)
         if (isAlpha(0, text) == 1 || notHaveEqual(text) == 1) {
             var reponse = "Veuillez entrer une equation valide"
             console.log(reponse + "toto")
@@ -278,6 +288,8 @@
 		else {
             var reponse = "Reduction : 0 = 0<br>L'equation n'est pas resoluble, tout les nombres reels sont admis !";
             console.log(reponse)
+            $('.message_input').val(reponse)
+            $('.send_message').click()
 		}
     }
     
@@ -399,7 +411,7 @@
         res = res + "Solution 2 : "+(b * -1)+" + "+racineDelta+" / "+diviseur
 
         res = res + */
-        res = res + "Solution 1 : " + reel + " &nbsp;&nbsp;" + " i * " + bi+"<br>"
+        res = res + "Solution 1 : " + reel + " &nbsp;&nbsp;" + " et i * " + bi+"<br>"
         res = res + "Solution 2 : " + reel + " - " + " " + "i * " + bi
 
         console.log(res);
@@ -438,9 +450,6 @@
 
    function execCalculator(text) {
         var tabChar = parseCalculator(text)
-        tabChar.forEach(Element => {
-            console.log(Element + ' // ')
-        });
         indexation(tabChar)
     }
 
