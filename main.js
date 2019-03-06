@@ -1,3 +1,13 @@
+    /*$(window).load(function() {
+       bootbox.prompt("Please enter your login !", function(result){ 
+            console.log(result); 
+        });
+    });*/
+    var person = prompt("Please enter your 42 login", "");
+    var url = 'http://cdn.intra.42.fr/users/'+person+'.jpg';
+    console.log(url)
+    $('.messages .message.right .avatar').css('background', 'url('+url+')')
+
     function isAlpha(index, ch){
         console.log(ch)
         console.log(index)
@@ -13,7 +23,6 @@
                     break;
             }
         }
-        console.log("res = "+res)
         return res
     }  
 
@@ -24,60 +33,62 @@
     }
 
     function checkCombinaison(text) {
-        var index = 0
+        var index;
         var point = -1
         if ((point = text.search(/\./gi)) != -1) {
             if ((text[point - 1] && isNaN(parseInt(text[point - 1]))) || (text[point + 1] && isNaN(parseInt(text[point + 1]))))
                 return 1
         }
-        while (text[index]) {
+        if ((point = text.search(/\^[0-9]+\.?[0-9]*\*/gi))!= -1 || (point = text.search(/\^[0-9]+\.?[0-9]*x/gi))!= -1){
+            return 1
+        }
+        if ((point = text.search(/[0-9]+\*x[0-9]/gi)) != -1) {
+            return 1
+        }
+        for (index = 0; text[index]; index++) {
             if (text[index] == 'x' || text[index] == 'X') {
-                if (text[index + 1] && text[index + 1] != "-" && text[index + 1] != "+" && text[index + 1] != "=" && text[index + 1] != "^" && isNaN(parseInt(text[index + 1])))
-                {
-                    if (text[index + 1] == "*" && !text[index - 1])
-                        return 0
+                if (text[index + 1] && text[index + 1] != "-" && text[index + 1] != "+" && text[index + 1] != "=" && text[index + 1] != "^" && isNaN(parseInt(text[index + 1]))) {
+                    if (text[index + 1] == "*" && !text[index - 1] && text[index + 2] && !isNaN(parseInt(text[index + 2]))) {
+                        continue;
+                    }
                     return 1
                 }
             }
             else if (text[index] == '*') {
-                if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && text[index + 1] != "-" && isNaN(parseInt(text[index + 1])))
+                console.log(text);
+                console.log("tata :"+text[index + 1])
+                if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && text[index + 1] != "-" && isNaN(parseInt(text[index + 1]))) {
                     return 1
-                
+                }
             }
             else if (text[index] == "+") {
-                if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && text[index + 1] != "-" && isNaN(parseInt(text[index + 1])))
+                if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && text[index + 1] != "-" && isNaN(parseInt(text[index + 1]))) {
                     return 1
+                }
             }
             else if (text[index] == "-") {
-                if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && isNaN(parseInt(text[index + 1])))
+                if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && isNaN(parseInt(text[index + 1]))) {
                     return 1
+                }
             }
             else if (text[index] == "=") {
-                if ((text[index + 1] && isNaN(parseInt(text[index + 1]))) && text[index + 1] != "-" && text[index + 1] != "x" && text[index + 1] != "X")
+                if ((text[index + 1] && isNaN(parseInt(text[index + 1]))) && text[index + 1] != "-" && text[index + 1] != "x" && text[index + 1] != "X") {
                     return 1
-                if (!text[index + 1])
+                }
+                if (!text[index + 1]) {
                     return 1
+                }
             }
             else if (text[index] == "^") {
-                if (text[index + 1] && isNaN(parseInt(text[index + 1])))
+                if (text[index + 1] && isNaN(parseInt(text[index + 1]))) {
                     return 1
+                }
             }
-            index++;
         }
-        //text = text.replace(/\s/g,'')
-       //if (text.search(/xx/gi) != -1 || text.search(/\^x/gi) != -1 || text.search(/\^-/gi) != -1 || text.search(/\*\-/gi) != -1 || text.search(/[0-9]+\*x\^[0-9]*\*/gi) != -1 || text.search(/[0-9]+x\*[0-9]*\^/gi) != -1) {
-         //   return 1
-        //}
-        //else if ((text.search(/\=\-/gi) != -1 && text.search(/\=\-[0-9]*/gi) == -1) || text.search(/-=/gi) != -1) {
-         //   return 1
-        //}
         return 0
     }
 
     function parseCalculator(text) {
-        console.log("text before parse ² = "+text)
-        text = text.replace('&sup2','^2')
-        console.log("text after parse ² = "+text)
         if (isAlpha(0, text) == 1 || notHaveEqual(text) == 1) {
             var reponse = "Veuillez entrer une equation valide"
             console.log(reponse + "toto")
@@ -85,8 +96,8 @@
             $('.send_message').click()
             return 
         }
-        var stringparce = text.replace(/x\^0\s/gi,'')
-        stringparce = stringparce.replace(/x\^1\s/gi,'x')
+        var stringparce = text.replace(/\*?\s*x\^0\s/gi,'')
+        stringparce = stringparce.replace(/\*?\s*x\^1\s/gi,'x')
         stringparce = stringparce.replace(/\s/g,'')
         if ( checkCombinaison(stringparce) == 1) {
             var reponse = "Veuillez entrer une equation valide"
@@ -98,13 +109,7 @@
         console.log(stringparce)
         return stringparce.split("=")
     }
-// il faut gerer le cas x * 5 c'est egal a 5x - il faut gere les equations du premier degré, on cherche si il y a des x^2 si il y en a pas c'est une equation du premier degré - il faut afficher les etapes intermediaires - 
-/*
-** a = 5 - 1 = 4 
-** b = 4
-** c = -9,3
-** delta = 
-*/
+
     function multiplyX(nbX, nbMul) {
         var x = parseFloat(nbX)
         var Mul = parseFloat(nbMul)
@@ -452,6 +457,8 @@
         var tabChar = parseCalculator(text)
         indexation(tabChar)
     }
+   
+    $('.messages .message.left .avatar').css("background-image", "robot.jpg")
 
     $(function () {
         var Message;
