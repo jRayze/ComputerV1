@@ -1,16 +1,16 @@
-    /*$(window).load(function() {
-       bootbox.prompt("Please enter your login !", function(result){ 
-            console.log(result); 
-        });
-    });*/
+    var debug = false
     var person = prompt("Please enter your 42 login", "");
     var url = 'http://cdn.intra.42.fr/users/'+person+'.jpg';
-    console.log(url)
-    $('.messages .message.right .avatar').css('background', 'url('+url+')')
+    $.get(url).fail(function () {
+            url = '42.png'; 
+    });
+
+
+    function modeDebug() {
+        debug = (debug == false) ? true : false;
+    }
 
     function isAlpha(index, ch){
-        console.log(ch)
-        console.log(index)
         let res = 0
         index = ch.search(/\D/gi)
         if (index != -1 && ch[index]) {
@@ -55,8 +55,6 @@
                 }
             }
             else if (text[index] == '*') {
-                console.log(text);
-                console.log("tata :"+text[index + 1])
                 if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && text[index + 1] != "-" && isNaN(parseInt(text[index + 1]))) {
                     return 1
                 }
@@ -91,7 +89,7 @@
     function parseCalculator(text) {
         if (isAlpha(0, text) == 1 || notHaveEqual(text) == 1) {
             var reponse = "Veuillez entrer une equation valide"
-            console.log(reponse + "toto")
+            console.log(reponse)
             $('.message_input').val(reponse)
             $('.send_message').click()
             return 
@@ -106,7 +104,9 @@
             $('.send_message').click()
             return 
         }
-        console.log(stringparce)
+        if (debug == true) {
+            console.log("String parse: "+stringparce)
+        }
         return stringparce.split("=")
     }
 
@@ -120,7 +120,6 @@
 		for (var i in tableau) {
 			let line = tableau[i]
 			if (line.puissance == puissance) {
-				console.log("lol"+puissance)
 				return index
 			}
 			index++
@@ -137,11 +136,11 @@
                     cpt++
                 }
                 var symb = tab[i][cpt]
-                console.log("symb= "+symb)
+                //console.log("symb= "+symb)
                 if (tab[i][cpt] && tab[i][cpt + 1]) {
                     cpt++
                     var newstr = tab[i].substr(cpt)
-                    console.log("substr1 = "+newstr)
+                    //console.log("substr1 = "+newstr)
                     tab[i] = newstr + tab[i].substr(0, cpt)
                 }
             }
@@ -149,9 +148,11 @@
             var index = tab[i].search(/x\d/)
             if (index != -1) {
                 tab[i] = tab[i].substr(index + 1) + 'x'
-                console.log("substr = "+tab[i])
-            }  
-            console.log("tab[i] = "+tab[i])
+               // console.log("substr = "+tab[i])
+            }
+            if (debug == true) {
+                console.log("tab["+i+"] = "+tab[i])
+            }
             var posx = tab[i].search(/x/gi)
             var posnum = tab[i].search(/\d/gi)
             var posxpui = tab[i].search(/x\^[0-9]+/gi)
@@ -162,14 +163,12 @@
 					var tdv = tab[i].substr(0, posxpui);
 					var value = parseFloat(tdv)
 					if (!isNaN(value)) {
-						console.log(value)
 						if (index == -1) {
 							tabPui.push({puissance: pui, valeur : (isneg == 0) ? value : value * -1 })
 						}
 						else {
 							tabPui[index].valeur += (isneg == 0) ? value : value * -1
 						}
-						console.log("tabpui = "+tabPui);
 					}
 				}
 				else {
@@ -180,7 +179,6 @@
 						tabPui[index].valeur += (isneg == 0) ? 1.00 : -1.00
 					}
 				}
-				console.log('pui = '+pui)
 			}
             else if (posx != -1) {
 				var index = checkIfPuiExist(tabPui, 1)
@@ -188,14 +186,12 @@
                     var tdv = tab[i].substr(0)
                     var value = parseFloat(tdv)
                     if (!isNaN(value)) {
-						console.log(value)
 						if (index == -1) {
 							tabPui.push({puissance: 1, valeur : (isneg == 0) ? value : value * -1 })
 						}
 						else {
 							tabPui[index].valeur += (isneg == 0) ? value : value * -1
 						}
-						console.log("tabpui = "+tabPui);
 					}
                 }
                 else {
@@ -222,21 +218,18 @@
     }
 
 	function getTabPuissance(tabChar) {
-		//fonction qui additionne les valeurs x apres le égal avec celle avant le egal --- penser a inverser la valeur "1x = -1x"
 		var tabGauche = new Array()
 		var tabDroite = new Array()
         var tabResult = [];
 
         tabGauche = splitBySymbol(tabChar[0])
-        console.log(tabGauche);
-		tabDroite = splitBySymbol(tabChar[1])
-        console.log(tabDroite)
+        tabDroite = splitBySymbol(tabChar[1])
+        if (debug == true) {
+            console.log("Tableau partie gauche : "+tabGauche);
+            console.log("Tableau partie droite : "+tabDroite)
+        }
         tabResult = fillTabPuissance(tabGauche, tabResult, 0)
         tabResult = fillTabPuissance(tabDroite, tabResult, 1)
-        for (var i in tabResult) {
-            var elem = tabResult[i];
-            console.log(i+": Puissance = "+elem.puissance+" | Valeur = "+elem.valeur)
-        }
         tabResult.sort(function(a, b) {
             return b.puissance - a.puissance;
         });
@@ -252,9 +245,10 @@
 		var b = 0.00;
 		var c = 0.00;
 		for (let i in tabPui) {
-			let elem = tabPui[i]
-			console.log(elem);
-			console.log("Puissance = "+elem.puissance+" and value = "+elem.valeur);
+            let elem = tabPui[i]
+            if (debug) {
+                console.log(elem);
+            }
 			if (elem.puissance >= 3) {
 				degreEleve = true
 			}
@@ -276,7 +270,6 @@
             reponse = reponse + "<br>L'equation est de degre superieur a 2 !"
             $('.message_input').val(reponse)
             $('.send_message').click()
-			//console.log("il faut reduire l'equation");
 		}
 		else if (degreDeux == true && a != 0) {
             var reponse = reduction(tabPui)
@@ -299,17 +292,19 @@
     }
     
     function solutionDegreDeux(a, b, c, reponse) {
-        console.log("a = " + parseFloat(a))
-        console.log("b = " + parseFloat(b))
-        console.log("c = " + parseFloat(c))
         var delta = calculDelta(a,b,c)
+        if (debug) {
+            console.log("a = " + parseFloat(a))
+            console.log("b = " + parseFloat(b))
+            console.log("c = " + parseFloat(c))
+            console.log("delta =" +delta)
+        }
         if (delta == 0) {
             reponse = reponse + "<br>Le discriminant est 0, la solution est :<br>"
             reponse = reponse + "Solution : " + calculSolution0(a, b).toFixed(6)+"<br>"
         }
         else if (delta > 0) {
             reponse = reponse + "<br>Le discriminant est positif, les deux solutions sont :<br>"
-           // reponse = reponse + "a = "+a+" b = "+b+" delta = "+delta+"<br>"
             reponse = reponse + "Solution 1 : " + calculSolution1(a,b,delta).toFixed(6)+"<br>"
             reponse = reponse + "Solution 2 : " + calculSolution2(a,b,delta).toFixed(6)+"<br>"
         }
@@ -351,7 +346,6 @@
     }
 	
 	function splitBySymbol(tabChar) {
-		//verifier si on split par - et + si ca fonctionne (idee = si - et precede d'un plus on annule le + et on ajoute le moins a la valeur qui suit)
 		var cpyTabChar = tabChar.replace(/-/gi, "+-");
 		var tabSplitSymbol = cpyTabChar.split("+")
 		if (tabSplitSymbol[0] == ""){
@@ -361,7 +355,9 @@
 	}
 	
     function indexation(tabChar) {
-        if (tabChar[0] == "" || tabChar[1] == "") {
+        if (!tabChar)
+            return 
+        if ((tabChar[0] && tabChar[0] == "") || (tabChar[1] && tabChar[1] == "")) {
             $('.message_input').val("Veuillez entrer une equation valide !")
             $('.send_message').click()
             return 
@@ -410,21 +406,14 @@
         var bi = (racineDelta / diviseur)
         var symb = (bi < 0) ? "+" : "-";
         var reel = ((-b / diviseur) == 0) ? "" : (-b / diviseur)+" "
-        bi = (bi < 0) ? bi * - 1 : bi
-        
-        /*res = res + "Solution 1 : "+(b * -1)+" - "+racineDelta+" / "+diviseur+"<br>"+((b * -1))+"<br>"
-        res = res + "Solution 2 : "+(b * -1)+" + "+racineDelta+" / "+diviseur
 
-        res = res + */
-        res = res + "Solution 1 : " + reel + " &nbsp;&nbsp;" + " et i * " + bi+"<br>"
+        bi = (bi < 0) ? bi * - 1 : bi
+        res = res + "Solution 1 : " + reel + " + " + " " + "i * " + bi+"<br>"
         res = res + "Solution 2 : " + reel + " - " + " " + "i * " + bi
 
-        console.log(res);
+        console.log(res.replace(/<br>/g, ""));
         return res
     }
-   /* -b + racineCarre(delta) / 2a
-    -b + racineCarre(deltaNeg) / 2a -> deltaNeg = delta * i^2 => racineCarre(deltaNeg) = racineCarree(deltaPos*i^2) -> racineCarre(delta) * racineCarree(i^2)
-    (-b + racineCarre(delta))/2a = (-b + i*racineCarre(deltaPos)) / 2a = racineCarre(deltaPos)/2a * i + (-b)/2a;*/
 
     function racineCarre(val, add, start, end) {
         var i = parseFloat(0.0 + start)
@@ -470,6 +459,7 @@
                     $message = $($('.message_template').clone().html());
                     $message.addClass(_this.message_side).find('.text').html(_this.text);
                     $('.messages').append($message);
+                    $('.messages .message.right .avatar').css('background-image', 'url('+url+')').css('background-size', '100%'); 
                     return setTimeout(function () {
                         return $message.addClass('appeared');
                     }, 0);

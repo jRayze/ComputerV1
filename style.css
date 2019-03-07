@@ -2,9 +2,17 @@
     box-sizing: border-box;
   }
   
+
   body {
-    background-color: #edeff2;
     font-family: "Calibri", "Roboto", sans-serif;
+  }
+
+  @media screen and (min-height:400px) and (min-width:600px) {
+    body {
+      background-image: url('background.jpeg'); 
+      background-size: 100% auto; 
+      background-repeat :no-repeat;
+    }
   }
   
   .chat_window {
@@ -194,3 +202,11 @@
     display: none;
   }
   
+  .debugMode {
+    float: left;
+    height: 48px;
+    border-radius: 25px;
+    color: white;
+    background-color: #f70000;
+    border: 5px;
+  }
