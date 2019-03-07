@@ -312,6 +312,7 @@
             reponse =  reponse + "<br>Le discriminant est negatif, il n'y a aucune solution pour les nombres reels."
             reponse =  reponse + calculSolutionComplexe(a, b, delta)
         }
+        console.log(reponse.replace(/<br>/g, ""));
         $('.message_input').val(reponse)
         $('.send_message').click()
     }
@@ -335,12 +336,14 @@
 
 	function solutionEquationDegreUn(b, c, reponse) {
         reponse = reponse +"<br>Equation du premier degre, la solution est : <br>" +((c * -1)/b)
+        console.log(reponse.replace(/<br>/g, ""));
 		$('.message_input').val(reponse)
         $('.send_message').click()
     }
     
     function solutionEquationDegreZero(reponse) {
         reponse = reponse+"<br> Il n'y a pas de solution pour les nombres reels !"
+        console.log(reponse.replace(/<br>/g, ""));
         $('.message_input').val(reponse)
         $('.send_message').click()
     }
@@ -375,13 +378,17 @@
     }
     function calculSolution1(a, b, delta) {
         var racineDelta = racineCarre(delta, 1.0, 0.0, 0.0)
-        console.log("racine delta = "+racineDelta);
+        if (debug == true) {
+            console.log("racine delta = "+racineDelta);
+        }
         if (racineDelta == 0) {
             return 0
         }
         var res = ((b * - 1) - racineDelta) / (2 * a)
-        console.log ("b * -1 = "+(b * -1)+" racineDelta = "+racineDelta+" 2 * a = "+(2 * a))
-        console.log(res)
+        if (debug == true) {
+            console.log ("b * -1 = "+(b * -1)+" racineDelta = "+racineDelta+" 2 * a = "+(2 * a))
+            console.log(res)
+        }
         return res
     }
 	
@@ -391,8 +398,10 @@
             return 0
         }
         var res = ((b * - 1) + racineDelta) / (2 * a)
-        console.log ("b * -1 = "+(b * -1)+" racineDelta = "+racineDelta+" 2 * a = "+(2 * a))
-        console.log(res)
+        if (debug == true) {
+            console.log ("b * -1 = "+(b * -1)+" racineDelta = "+racineDelta+" 2 * a = "+(2 * a))
+            console.log(res)
+        }
         return res
     }
     
@@ -410,7 +419,6 @@
         bi = (bi < 0) ? bi * - 1 : bi
         res = res + "Solution 1 : " + reel + " + " + " " + "i * " + bi+"<br>"
         res = res + "Solution 2 : " + reel + " - " + " " + "i * " + bi
-
         console.log(res.replace(/<br>/g, ""));
         return res
     }
