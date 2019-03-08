@@ -9,9 +9,9 @@
 
   @media screen and (min-height:400px) and (min-width:600px) {
     body {
-      background-image: url('background.jpeg'); 
+     /* background-image: url('background.jpeg'); 
       background-size: 100% auto; 
-      background-repeat :no-repeat;
+      background-repeat :no-repeat;*/
     }
   }
   
@@ -31,7 +31,7 @@
   }
   
   .top_menu {
-    background-color: #fff;
+    background-color: #000;
     width: 100%;
     padding: 20px 0 15px;
     box-shadow: 0 1px 30px rgba(0, 0, 0, 0.1);
@@ -148,15 +148,17 @@
     font-weight: 300;
   }
   
+
   .bottom_wrapper {
     position: relative;
     width: 100%;
-    background-color: #fff;
+    background-color: #777;
     padding: 20px 20px;
     position: absolute;
     bottom: 0;
   }
   .bottom_wrapper .message_input_wrapper {
+    background-color: #fff;
     display: inline-block;
     height: 50px;
     border-radius: 25px;
