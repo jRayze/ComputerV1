@@ -28,12 +28,31 @@
                 return 1
         }
         if ((point = text.search(/\^[0-9]+\./gi)) != -1){
+            if (debug == true) {
+                console.log("Error : "+point)
+                console.log("Les puissance a virgules ne sont pas autorisée !");
+            }
             return 1
         }
         if ((point = text.search(/\^[0-9]+\.?[0-9]*\*/gi))!= -1 || (point = text.search(/\^[0-9]+\.?[0-9]*x/gi))!= -1){
+            if (debug == true) {
+                console.log("Error : "+point)
+                console.log("Mauvaise combinaison de symboles !");
+            }
             return 1
         }
         if ((point = text.search(/[0-9]+\*x[0-9]/gi)) != -1) {
+            if (debug == true) {
+                console.log("Error : "+point)
+                console.log("Les multiplications ne sont pas admises !");
+            }
+            return 1
+        }
+        if ((point = text.search(/[0-9]+\^[0-9]\.?[0-9]*[^x]/gi) != -1)) {
+            if (debug == true) {
+                console.log("Error : "+point)
+                console.log("Les puissance ne sont pas admises pour les nombres connus !");
+            }
             return 1
         }
         for (index = 0; text[index]; index++) {
@@ -42,34 +61,62 @@
                     if (text[index + 1] == "*" && !text[index - 1] && text[index + 2] && !isNaN(parseInt(text[index + 2]))) {
                         continue;
                     }
+                    if (debug == true) {
+                        console.log ("Error : "+text[index]+text[index + 1])
+                        console.log("Combinaison de symbole invalides !")
+                    }
                     return 1
                 }
             }
             else if (text[index] == '*') {
                 if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && text[index + 1] != "-" && isNaN(parseInt(text[index + 1]))) {
+                    if (debug == true) {
+                        console.log ("Error : "+text[index]+text[index + 1])
+                        console.log("Combinaison de symbole invalides !")
+                    }
                     return 1
                 }
             }
             else if (text[index] == "+") {
                 if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && text[index + 1] != "-" && isNaN(parseInt(text[index + 1]))) {
+                    if (debug == true) {
+                        console.log ("Error : "+text[index]+text[index + 1])
+                        console.log("Combinaison de symbole invalides !")
+                    }
                     return 1
                 }
             }
             else if (text[index] == "-") {
                 if (text[index + 1] && text[index + 1] != "x" && text[index + 1] != "X" && isNaN(parseInt(text[index + 1]))) {
+                    if (debug == true) {
+                        console.log ("Error : "+text[index]+text[index + 1])
+                        console.log("Combinaison de symbole invalides !")
+                    }
                     return 1
                 }
             }
             else if (text[index] == "=") {
                 if ((text[index + 1] && isNaN(parseInt(text[index + 1]))) && text[index + 1] != "-" && text[index + 1] != "x" && text[index + 1] != "X") {
+                    if (debug == true) {
+                        console.log ("Error : "+text[index]+text[index + 1])
+                        console.log("Combinaison de symbole invalides !")
+                    }
                     return 1
                 }
                 if (!text[index + 1]) {
+                    if (debug == true) {
+                        console.log ("Error : "+text[index])
+                        console.log("Le symbole egal n'est pas suivis d'une valeur !")
+                    }
                     return 1
                 }
             }
             else if (text[index] == "^") {
                 if (text[index + 1] && isNaN(parseInt(text[index + 1]))) {
+                    if (debug == true) {
+                        console.log ("Error : "+text[index]+text[index + 1])
+                        console.log("Combinaison de symbole invalides !")
+                    }
                     return 1
                 }
             }

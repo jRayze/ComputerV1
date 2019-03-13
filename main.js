@@ -7,9 +7,15 @@
 
     function modeDebug() {
         debug = (debug == false) ? true : false;
+        console.log((debug == false) ? "Debug Off" : "Debug On")
     }    
-	
-   function execCalculator(text) {
+    
+    function writeDebug(value) {
+        //$().html(value);
+        console.log(value)
+    }
+    
+    function execCalculator(text) {
         console.log("***Resolution equation***")
         var tabChar = parseCalculator(text)
         indexation(tabChar)
@@ -69,8 +75,5 @@
                 }
             });
             sendMessage('Veuilez entrer une equation');
-            setTimeout(function () {
-                return sendMessage('');
-            }, 1000);
         });
     }.call(this));
