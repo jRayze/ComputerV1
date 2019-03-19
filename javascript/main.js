@@ -1,9 +1,6 @@
     var debug = false
     var person = prompt("Please enter your 42 login", "");
-    var url = 'http://cdn.intra.42.fr/users/'+person+'.jpg';
-    $.get(url).fail(function () {
-            url = '../images/42.png'; 
-    });
+    var url = '../images/42.png'; 
 
     function modeDebug() {
         debug = (debug == false) ? true : false;
